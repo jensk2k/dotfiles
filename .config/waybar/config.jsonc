@@ -1,0 +1,216 @@
+// After editing: pkill waybar ; uwsm app -- waybar &
+{
+    "layer": "top",
+    "position": "top",
+    "height": 34,
+    "spacing": 4,
+
+    "modules-left": [
+        "custom/power", 
+        "hyprland/workspaces",
+        "idle_inhibitor",
+        "custom/notifications",
+        "power-profiles-daemon",
+        "wireplumber",
+        "backlight",
+        "bluetooth",
+        "mpd"
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
+    "modules-right": [
+        "hyprland/submap",
+        //"keyboard-state",
+        //"hyprland/language",
+        "cpu",
+        "memory",
+        "temperature",
+        "battery",
+        "network",
+        "tray",
+        "clock"
+    ],
+
+    "hyprland/workspaces": {
+        "disable-scroll": false,
+        "on-click": "activate",
+        "format": "{id}",
+        "persistent-workspaces": { "*": 5 },
+        "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
+        "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
+    },
+
+    "keyboard-state": {
+        "numlock": false,
+        "capslock": false,
+        "format": "{name} {icon}",
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    },
+
+    // Title of the focused window
+    "hyprland/window": {
+        "max-length": 60,
+        "separate-outputs": true
+    },
+
+    // 24-hour clock; hover for a calendar with week numbers, click for the full date
+    "clock": {
+        "format": "{:%A %d.%m.%Y  %H:%M}",
+        //"format-alt": "{:%H:%M}",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        //"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "left",
+            "format": {
+                "weeks": "<span color='#595959'>W{}</span>",
+                "today": "<span color='#00ff99'><b>{}</b></span>"
+            }
+        }
+    },
+
+    "cpu": {
+        "format": "{usage}% ",
+        "tooltip": false
+    },
+    "memory": {
+        "format": "{}% \ue266",
+        "tooltip": true,
+	    "tooltip-format": "{used:0.1f}GB/{total:0.1f}G"
+    },
+    "temperature": {
+        // "thermal-zone": 2,
+        // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        // "format-critical": "{temperatureC}°C {icon}",
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": ["", "", ""]
+    },
+    "backlight": {
+        // "device": "acpi_video1",
+        "format": "{percent}% {icon}",
+        "format-icons": ["", "", "", "", "", "", "", "", ""]
+    },
+    // Icons of apps that put themselves in the tray (Steam, Discord, ...).
+    // The Wi-Fi and Bluetooth applets are no longer started, so they
+    // don't duplicate the modules further right.
+    "tray": {
+        "icon-size": 18,
+        "spacing": 8
+    },
+
+    "mpd": {
+        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
+        "format-disconnected": "Disconnected ",
+        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+        "unknown-tag": "N/A",
+        "interval": 2,
+        "consume-icons": {
+            "on": " "
+        },
+        "random-icons": {
+            "off": "<span color=\"#f53c3c\"></span> ",
+            "on": " "
+        },
+        "repeat-icons": {
+            "on": " "
+        },
+        "single-icons": {
+            "on": "1 "
+        },
+        "state-icons": {
+            "paused": "",
+            "playing": ""
+        },
+        "tooltip-format": "MPD (connected)",
+        "tooltip-format-disconnected": "MPD (disconnected)"
+    },
+    // Click to stop the screen locking/turning off (e.g. while reading)
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        },
+        "tooltip-format-activated": "Staying awake",
+        "tooltip-format-deactivated": "Normal idle and lock"
+    },
+    "custom/notifications": {
+        "exec": "~/.config/waybar/scripts/mako-dnd.sh",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 8,
+        "on-click": "makoctl mode -t do-not-disturb; pkill -RTMIN+8 waybar"
+    },
+    // Volume: scroll to change, click for the mixer, right-click to mute
+    "wireplumber": {
+        "format": "{volume}% {icon}",
+        "format-muted": " muted",
+        "format-icons": ["", "", ""],
+        "scroll-step": 5,
+        "tooltip-format": "{node_name}",
+//        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.mixer wiremix",
+        //"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+    },
+
+    // Click for a Wi-Fi menu that drops down under the bar,
+    // right-click for the full connection editor
+    "network": {
+        "format-wifi": "{signalStrength}% ",
+        "format-ethernet": "",
+        "format-disconnected": "󰈂",
+        //"format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}",
+        "tooltip-format-disconnected": "Not connected",
+        "on-click": "networkmanager_dmenu",
+        //"on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.network nmtui"
+    },
+
+    // Click to manage devices, right-click to turn Bluetooth on/off
+    "bluetooth": {
+        "format": "",
+        "format-off": "",
+        "format-disabled": "",
+        "format-connected": "{num_connections} ",
+        "tooltip-format": "Bluetooth: {status}",
+        "tooltip-format-connected": "{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.bluetooth bluetui",
+        "on-click-right": "bluetoothctl show | grep -q 'Powered: yes' && bluetoothctl power off || bluetoothctl power on"
+    },
+
+    "battery": {
+        "states": { "warning": 25, "critical": 10 },
+        "format": "{capacity}% {icon}",
+        "format-alt": "{time} {icon}",
+        "format-charging": "{capacity}% 🗲",
+        "format-plugged": "{capacity}% ",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip-format": "{timeTo}",
+        //"on-click": "case $(powerprofilesctl get) in power-saver) n=balanced ;; balanced) n=performance ;; *) n=power-saver ;; esac; powerprofilesctl set $n || powerprofilesctl set power-saver"
+    },
+
+    // Leaf = power-saver, scales = balanced, gauge = performance
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip-format": "Power profile: {profile}",
+        "format-icons": {
+            "default": "󰊚",
+            "performance": "󰡴",
+            "balanced": "󰊚",
+            "power-saver": "󰡵"
+        }
+    },
+
+    // Power menu (lock, log out, suspend, reboot, shut down)
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "~/.config/hypr/scripts/power-menu.sh"
+    }
+}
