@@ -3,7 +3,7 @@
 # Small power menu shown with fuzzel. Used by the Waybar power button.
 
 choice=$(printf '%s\n' "Lock" "Log out" "Suspend" "Reboot" "Shut down" |
-  fuzzel --dmenu --prompt "Power: " --lines 5 --width 20)
+  fuzzel --dmenu --prompt "Power ❯ " --lines 5 --width 20)
 
 case "$choice" in
 "Lock") loginctl lock-session ;;

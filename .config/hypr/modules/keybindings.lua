@@ -3,7 +3,7 @@
 ---------------------
 
 local terminal = "kitty"
-local launcher = "hyprlauncher"
+local launcher = "fuzzel"
 
 local mod = "SUPER"
 
@@ -14,7 +14,7 @@ hl.bind(mod .. " + Space", hl.dsp.exec_cmd(launcher))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(terminal .. " yazi"))
 
 -- Clipboard history picker
-hl.bind(mod .. " + V", hl.dsp.exec_cmd("cliphist list | hyprlauncher --dmenu | cliphist decode | wl-copy"))
+hl.bind(mod .. " + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu --prompt \"Clipboard ❯ \" | cliphist decode | wl-copy"))
 
 -- Window management
 hl.bind(mod .. " + C", hl.dsp.window.close())
