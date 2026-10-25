@@ -1,0 +1,33 @@
+font=JetBrainsMono Nerd Font 11
+anchor=top-right
+layer=overlay
+margin=8
+padding=10,12
+width=360
+border-size=1
+border-radius=6
+default-timeout=5000
+max-visible=5
+icons=1
+max-icon-size=48
+
+# RRGGBBAA hex: red, green, blue, alpha (opacity). d9 is your 0.85
+background-color=#141418d9
+text-color=#d0d0d0
+border-color=#33ccff
+progress-color=over #282830
+
+[urgency=low]
+border-color=#707070
+default-timeout=3000
+
+[urgency=high]
+border-color=#ff3366
+default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1
+
+# Optional: let urgent notifications through even in do-not-disturb
+[mode=do-not-disturb urgency=high]
+invisible=0

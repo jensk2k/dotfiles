@@ -1,0 +1,160 @@
+@define-color bg        rgba(20, 20, 24, 0.85);
+@define-color bg2       rgba(40, 40, 48, 0.85);
+@define-color fg        #d0d0d0;
+@define-color dim       #707070;
+@define-color accent    #33ccff;
+@define-color accent2   #00ff99;
+@define-color warn      #ffaa33;
+@define-color crit      #ff3366;
+
+* {
+    transition: none;
+    box-shadow: none;
+}
+
+#waybar {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 14px;
+    background: @bg;
+    /*color: @fg;*/
+}
+
+tooltip {
+    background: @bg;
+    border: 1px solid @accent;
+    border-radius: 6px;
+}
+
+/* Workspaces */
+#workspaces button {
+    padding: 0 8px;
+    color: @dim;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+}
+
+#workspaces button.active {
+    color: @accent;
+    border-bottom: 2px solid @accent;
+}
+
+#workspaces button.urgent {
+    color: @crit;
+}
+
+#workspaces button:hover {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/*#window {
+    padding: 0 12px;
+    color: @dim;
+}*/
+#window {
+  margin-left: 2px;
+  margin-right: 2px;
+  background-color: transparent;
+  font-family: sans-serif;
+/*  font-size: 0.9em;*/
+}
+
+/* Right-hand modules */
+#clock,
+#cpu,
+#memory,
+#battery,
+
+#temperature,
+#backlight,
+#idle_inhibitor,
+#custom-notifications,
+#workspaces,
+#wireplumber,
+#network,
+#bluetooth,
+#tray,
+#power-profiles-daemon,
+#custom-power {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @bg2;
+    border-radius: 4px;
+    min-width: 20px;
+}
+
+/* Status icons react to hover, since they're all clickable now */
+#idle_inhibitor:hover,
+#wireplumber:hover,
+#network:hover,
+#bluetooth:hover,
+#energy:hover,
+#custom-power:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Tray sits apart from the status icons, with a thin divider */
+/*#tray {
+    margin-right: 4px;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}*/
+
+#clock {
+    color: @accent2;
+    font-weight: bold;
+}
+
+#idle_inhibitor.activated {
+    color: @accent2;
+}
+
+#wireplumber.muted,
+#network.disconnected,
+#bluetooth.off {
+    color: @dim;
+}
+
+#bluetooth.connected {
+    color: @accent;
+}
+
+/* Battery + power profile group: one item, tight spacing inside */
+/*#energy #battery {
+    padding: 0 4px 0 0;
+}*/
+
+/*#energy #power-profiles-daemon {
+    padding: 0 0 0 4px;
+}*/
+
+/* Power profile: amber for performance, green for power saving */
+#power-profiles-daemon.performance {
+    color: @warn;
+}
+
+#power-profiles-daemon.power-saver {
+    color: @accent2;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @accent2;
+}
+
+#battery.warning:not(.charging) {
+    color: @warn;
+}
+
+#battery.critical:not(.charging) {
+    color: @crit;
+}
+
+#custom-power {
+    color: @crit;
+    /*padding-right: 14px;*/
+}
+
+#custom-notifications.dnd {
+    color: @warn;
+}
