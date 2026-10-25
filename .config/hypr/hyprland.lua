@@ -21,10 +21,6 @@ require("workspaces")
 -----------------------
 
 hl.config({
-	cursor = {
-		no_hardware_cursors = 0, -- Enforces hardware cursor rendering
-	},
-
 	render = {
 		direct_scanout = true, -- Bypasses compositor for fullscreen windows
 	},

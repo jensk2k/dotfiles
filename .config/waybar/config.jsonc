@@ -96,8 +96,7 @@
         "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     // Icons of apps that put themselves in the tray (Steam, Discord, ...).
-    // The Wi-Fi and Bluetooth applets are no longer started, so they
-    // don't duplicate the modules further right.
+    // nm-applet lives here too, for its connection menu.
     "tray": {
         "icon-size": 18,
         "spacing": 8
@@ -146,7 +145,7 @@
         "signal": 8,
         "on-click": "makoctl mode -t do-not-disturb; pkill -RTMIN+8 waybar"
     },
-    // Volume: scroll to change, click for the mixer, right-click to mute
+    // Volume: scroll to change
     "wireplumber": {
         "format": "{volume}% {icon}",
         "format-muted": " muted",
@@ -157,8 +156,7 @@
         //"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
     },
 
-    // Click for a Wi-Fi menu that drops down under the bar,
-    // right-click for the full connection editor
+    // Click for a Wi-Fi menu (networkmanager_dmenu) that drops down under the bar
     "network": {
         "format-wifi": "{signalStrength}% ",
         "format-ethernet": "",
