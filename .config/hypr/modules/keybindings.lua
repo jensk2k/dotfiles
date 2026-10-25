@@ -2,7 +2,7 @@
 ---- KEYBINDINGS ----
 ---------------------
 
-local terminal = "foot"
+local terminal = "kitty"
 local launcher = "hyprlauncher"
 
 local mod = "SUPER"
