@@ -6,6 +6,9 @@ export TERMINAL="kitty"
 # Ensure local user binaries are in PATH
 export PATH="$HOME/.local/bin:$PATH"
 
+# Stop here for non-interactive shells (scp, rsync, `ssh host cmd`)
+[[ $- != *i* ]] && return
+
 # --- Aliases ---
 # Dotfiles Bare Repository Alias
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'

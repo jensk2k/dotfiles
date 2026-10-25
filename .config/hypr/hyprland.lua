@@ -16,18 +16,6 @@ hl.monitor({
 require("monitors")
 require("workspaces")
 
--------------------------------
----- ENVIRONMENT VARIABLES ----
--------------------------------
-
--- Under uwsm, environment variables are best placed in ~/.config/uwsm/env
--- so every app in the session sees them. These two are harmless here.
-hl.env("XCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("GTK_THEME", "Adwaita:dark")
-hl.env("XCURSOR_THEME", "Adwaita")
-hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
-
 -----------------------
 ---- LOOK AND FEEL ----
 -----------------------

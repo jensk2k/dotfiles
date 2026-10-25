@@ -14,8 +14,8 @@ setopt AUTO_CD
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-setopt INC_APPEND_HISTORY  # Save commands to history as soon as they run
-setopt SHARE_HISTORY       # Share history across all open terminal windows
+setopt SHARE_HISTORY         # Save commands immediately and share across all open terminal windows
+setopt HIST_IGNORE_ALL_DUPS  # Drop older copies of a repeated command
 
 # --- Aliases ---
 # Dotfiles Bare Repository Alias
@@ -36,17 +36,17 @@ compinit
 # Enable interactive, menu-driven completion selection (arrow keys to pick)
 zstyle ':completion:*' menu select
 
-# --- Arch Native Plugins ---
-# Syntax Highlighting (valid commands highlight green, invalid red)
-[[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
-    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Autosuggestions (press Right Arrow to accept greyed-out history suggestions)
-[[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
-    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# --- Optional Integrations (Uncomment if installed) ---
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
+
+# --- Arch Native Plugins ---
+# Autosuggestions (press Right Arrow to accept greyed-out history suggestions)
+[[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Syntax Highlighting (valid commands highlight green, invalid red)
+# Must be sourced last so it can wrap every widget defined above
+[[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
