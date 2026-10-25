@@ -19,7 +19,7 @@ progress-color=over #282830
 
 [urgency=low]
 border-color=#707070
-default-timeout=3000
+default-timeout=20000
 
 [urgency=high]
 border-color=#ff3366
