@@ -41,3 +41,19 @@ No build/test suite. To sanity-check:
 - Hyprland reload / errors: `hyprctl reload`, then `hyprctl configerrors`
 - Waybar: `pkill waybar; uwsm app -- waybar &` (or `pkill -SIGUSR2 waybar` to reload)
 - Mako: `makoctl reload`
+- If `hyprctl` says "Couldn't connect to .../.socket.sock", the shell's `HYPRLAND_INSTANCE_SIGNATURE` is from an old session (e.g. after a re-login): `export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t /run/user/1000/hypr/ | head -1)`
+
+## Roadmap
+
+The user's goals for this setup, in no particular order. Notes are starting points, not decisions. Remove an item once it's done.
+
+- **Tidy up `~/.config/`**: it has ~87 entries, many for apps that are no longer installed. Cross-check each against `pacman -Qo`/installed packages and confirm with the user before deleting anything (some are untracked app state).
+- **Split `hyprland.lua` into more modules**: e.g. look-and-feel, input, window rules, alongside the existing `modules/keybindings.lua` and `modules/autostart.lua`. Leave the nwg-displays `monitors.lua`/`workspaces.lua` as they are.
+- **Style the login screen to match**: the display manager is **SDDM**. Its themes and config live outside `$HOME` (`/usr/share/sddm/themes`, `/etc/sddm.conf.d`), so they need root and aren't trackable in this repo as-is; plan how to version them (e.g. keep a copy under `~` plus an install step). hyprlock (lock screen) is already partly themed.
+- **Centralize the color palette**: one source of truth for the shared palette above, feeding Hyprland (Lua can `require` a palette module), waybar CSS (`@define-color` import), mako, fuzzel and hyprlock (their INI-style configs may need a generate step or includes).
+- **No border when a workspace has a single window**: Hyprland supports this with workspace-selector rules ("smart borders"/"smart gaps", e.g. matching `w[tv1]`); check the exact Lua `hl.workspace_rule`/`hl.window_rule` syntax in the current wiki.
+- **Better workspace display in the Waybar `hyprland/workspaces` module**: e.g. per-workspace app icons (`window-rewrite`), only showing occupied workspaces, clearer active/urgent styling.
+- **Keyboard first, mouse supported**: add hotkeys for almost everything that's currently mouse-only (Waybar actions like Bluetooth, volume mixer, power menu, idle inhibitor, DND, power profile).
+- **Revisit keybindings**: check the grouping is logical, consider vi-style `hjkl` navigation next to the arrows, and research what other Hyprland users commonly do before proposing a scheme.
+- **Keybinding cheat sheet on `SUPER + ?`**: show the keymap in an overlay or fuzzel list, ideally generated from `keybindings.lua` (or `hyprctl binds`) so it can't drift out of date.
+- **Smaller ideas**: more fuzzel menus (emoji picker, Bluetooth) and installing `mpv-mpris` so mpv shows up in the Waybar `mpris` module.
