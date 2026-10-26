@@ -72,7 +72,6 @@ tooltip {
 #custom-notifications,
 #workspaces,
 #wireplumber,
-#network,
 #bluetooth,
 #mpris,
 #tray,
@@ -88,7 +87,6 @@ tooltip {
 /* Status icons react to hover, since they're all clickable now */
 #idle_inhibitor:hover,
 #wireplumber:hover,
-#network:hover,
 #bluetooth:hover,
 #mpris:hover,
 #energy:hover,
@@ -112,7 +110,6 @@ tooltip {
 }
 
 #wireplumber.muted,
-#network.disconnected,
 #bluetooth.off,
 #mpris.paused {
     color: @dim;

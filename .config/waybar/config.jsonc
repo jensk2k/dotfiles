@@ -27,7 +27,6 @@
         "memory",
         "temperature",
         "battery",
-        "network",
         "tray",
         "clock"
     ],
@@ -96,7 +95,7 @@
         "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     // Icons of apps that put themselves in the tray (Steam, Discord, ...).
-    // nm-applet lives here too, for its connection menu.
+    // nm-applet lives here too: Wi-Fi status and its connection menu.
     "tray": {
         "icon-size": 18,
         "spacing": 8
@@ -146,19 +145,6 @@
         "tooltip-format": "{node_name}",
 //        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.mixer wiremix",
         //"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-    },
-
-    // Click for a Wi-Fi menu (networkmanager_dmenu) that drops down under the bar
-    "network": {
-        "format-wifi": "{signalStrength}% ",
-        "format-ethernet": "",
-        "format-disconnected": "󰈂",
-        //"format-alt": "{ifname}: {ipaddr}/{cidr}",
-        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
-        "tooltip-format-ethernet": "{ifname}\n{ipaddr}",
-        "tooltip-format-disconnected": "Not connected",
-        "on-click": "networkmanager_dmenu",
-        //"on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.network nmtui"
     },
 
     // Click to manage devices, right-click to turn Bluetooth on/off

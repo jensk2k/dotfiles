@@ -29,9 +29,10 @@ git --git-dir=$HOME/.dotfiles ls-tree -r --name-only HEAD   # list tracked files
   - Autostarted apps are launched with `uwsm app -- <cmd>`; keep that wrapper for anything new. Session env vars (cursor, GTK/Qt theme) live in `~/.config/uwsm/env`, not in `hl.env` calls; changes need a re-login.
   - Companion daemons: hypridle (runs hyprlock), hyprpaper, hyprsunset.
 - **Waybar ↔ Hyprland/Mako**: Waybar modules call `~/.config/hypr/scripts/toggle-popup.sh <app-id> <cmd>` (opens a TUI like `bluetui` in a floating kitty window via `kitty --class`; the class must start with `popup.` to match the `bar-popups` window rule in `hyprland.lua`) and `power-menu.sh`. The Mako DND keybind does `pkill -RTMIN+8 waybar` to refresh the `waybar/scripts/mako-dnd.sh` module — keep the signal number in sync if either side changes.
-- **Launcher / menus**: fuzzel everywhere — app launcher (`SUPER + Space`), clipboard picker (`cliphist` → `fuzzel --dmenu`), `power-menu.sh`, and the Waybar Wi-Fi menu (`networkmanager_dmenu`, config in `~/.config/networkmanager-dmenu/config.ini`). `~/.config/fuzzel/fuzzel.ini` uses `launch-prefix=uwsm app --` and the shared palette below; new pickers should be dmenu-style scripts on fuzzel.
+- **Launcher / menus**: fuzzel — app launcher (`SUPER + Space`), clipboard picker (`cliphist` → `fuzzel --dmenu`), `power-menu.sh`. `~/.config/fuzzel/fuzzel.ini` uses `launch-prefix=uwsm app --`, `dpi-aware=no` (otherwise text renders ~1.6x larger than mako on this ~157 DPI panel) and the shared palette below. fuzzel menus hold the keyboard exclusively. Tried and rejected: `keyboard-focus=on-demand` (focus-follows-mouse closes it), and click-to-toggle from a Waybar icon (Hyprland doesn't pass bar clicks through while fuzzel holds the keyboard).
+- **Wi-Fi**: nm-applet in the Waybar tray only; there is no Waybar `network` module or networkmanager_dmenu.
 - **Shared palette** (keep mako, waybar `style.css`, fuzzel, hyprlock and Hyprland borders in sync): background `#141418` at ~85% alpha, text `#d0d0d0`, dim `#707070`, accent cyan `#33ccff`, accent green `#00ff99`, critical `#ff3366`; font JetBrainsMono Nerd Font; 6px corner radius.
-- **Terminal**: kitty (`$TERMINAL`, keybindings, popups, nmdm editor). foot is no longer tracked.
+- **Terminal**: kitty (`$TERMINAL`, keybindings, popups). foot is no longer tracked.
 
 ## Validating changes
 
