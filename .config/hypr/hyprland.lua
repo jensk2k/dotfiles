@@ -26,8 +26,8 @@ hl.config({
 	},
 
 	general = {
-		gaps_in = 5,
-		gaps_out = 10,
+		gaps_in = 2,
+		gaps_out = 2,
 		border_size = 2,
 
 		col = {
@@ -129,6 +129,24 @@ hl.window_rule({
 		pin = false,
 	},
 	no_focus = true,
+})
+
+-- A window alone on its workspace fills it edge to edge: no gaps, border or
+-- rounding. Matches one tiled window (w[tv1]) or a maximized one (f[1]).
+-- Floating windows keep their border and rounding.
+hl.workspace_rule({ workspace = "w[tv1]", gaps_in = 0 })
+hl.workspace_rule({ workspace = "f[1]", gaps_in = 0 })
+hl.window_rule({
+	name = "solo-single-tiled",
+	match = { float = false, workspace = "w[tv1]" },
+	border_size = 0,
+	rounding = 0,
+})
+hl.window_rule({
+	name = "solo-maximized",
+	match = { float = false, workspace = "f[1]" },
+	border_size = 0,
+	rounding = 0,
 })
 
 -- Small settings dialogs float instead of tiling
