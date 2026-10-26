@@ -73,9 +73,12 @@ hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("loginctl lock-session")) -- hypridle runs hyprlock
 hl.bind(mod .. " + SHIFT + Escape", hl.dsp.exec_cmd("uwsm stop")) -- log out cleanly
 
--- Screenshots (copied to clipboard)
-hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy')) -- select a region
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grim - | wl-copy")) -- whole screen
+-- Screenshots: saved to ~/Pictures/Screenshots and copied; click the notification to annotate
+local screenshot = "~/.config/hypr/scripts/screenshot.sh"
+hl.bind("Print", hl.dsp.exec_cmd(screenshot .. " region"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(screenshot .. " screen"))
+hl.bind(mod .. " + Print", hl.dsp.exec_cmd(screenshot .. " window"))
+hl.bind("CTRL + Print", hl.dsp.exec_cmd(screenshot .. " region --edit")) -- straight into satty
 
 -- Volume, brightness and media keys (work on the lock screen too)
 hl.bind(
