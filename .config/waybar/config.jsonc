@@ -187,6 +187,14 @@
     "custom/power": {
         "format": "",
         "tooltip": false,
-        "on-click": "~/.config/hypr/scripts/power-menu.sh"
+        "menu": "on-click",
+        "menu-file": "~/.config/waybar/power-menu.xml",
+        "menu-actions": {
+            "lock": "loginctl lock-session",
+            "logout": "uwsm stop",
+            "suspend": "systemctl suspend",
+            "reboot": "systemctl reboot",
+            "shutdown": "systemctl poweroff"
+        }
     }
 }

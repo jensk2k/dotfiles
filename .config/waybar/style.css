@@ -158,3 +158,28 @@ tooltip {
 #custom-notifications.dnd {
     color: @warn;
 }
+
+/* Power menu (native GTK popup from custom/power) */
+menu {
+    background: @bg;
+    color: @fg;
+    border: 1px solid @accent;
+    border-radius: 6px;
+    padding: 4px;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+}
+
+menuitem {
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+menuitem:hover {
+    background: @bg2;
+    color: @accent;
+}
+
+menu separator {
+    margin: 4px 0;
+    background: rgba(255, 255, 255, 0.12);
+}
