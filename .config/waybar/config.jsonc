@@ -14,7 +14,7 @@
         "wireplumber",
         "backlight",
         "bluetooth",
-        "mpd"
+        "mpris"
     ],
     "modules-center": [
         "hyprland/window"
@@ -102,31 +102,23 @@
         "spacing": 8
     },
 
-    "mpd": {
-        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
-        "format-disconnected": "Disconnected ",
-        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
-        "unknown-tag": "N/A",
-        "interval": 2,
-        "consume-icons": {
-            "on": " "
+    // Now playing from any MPRIS player (browser, mpv, Spotify, ...).
+    // Hidden when nothing is playing. Click: play/pause, middle: previous, right: next
+    "mpris": {
+        "format": "{player_icon} {dynamic}",
+        "format-paused": "{status_icon} {dynamic}",
+        "dynamic-order": ["artist", "title"],
+        "dynamic-len": 40,
+        "player-icons": {
+            "default": "󰎆",
+            "brave": "󰖟",
+            "mpv": "󰐹",
+            "spotify": "󰓇"
         },
-        "random-icons": {
-            "off": "<span color=\"#f53c3c\"></span> ",
-            "on": " "
+        "status-icons": {
+            "paused": "󰏤"
         },
-        "repeat-icons": {
-            "on": " "
-        },
-        "single-icons": {
-            "on": "1 "
-        },
-        "state-icons": {
-            "paused": "",
-            "playing": ""
-        },
-        "tooltip-format": "MPD (connected)",
-        "tooltip-format-disconnected": "MPD (disconnected)"
+        "tooltip-format": "{player}: {artist} - {title}\n{album}"
     },
     // Click to stop the screen locking/turning off (e.g. while reading)
     "idle_inhibitor": {

@@ -74,6 +74,7 @@ tooltip {
 #wireplumber,
 #network,
 #bluetooth,
+#mpris,
 #tray,
 #power-profiles-daemon,
 #custom-power {
@@ -89,6 +90,7 @@ tooltip {
 #wireplumber:hover,
 #network:hover,
 #bluetooth:hover,
+#mpris:hover,
 #energy:hover,
 #custom-power:hover {
     background: rgba(255, 255, 255, 0.06);
@@ -111,7 +113,8 @@ tooltip {
 
 #wireplumber.muted,
 #network.disconnected,
-#bluetooth.off {
+#bluetooth.off,
+#mpris.paused {
     color: @dim;
 }
 
