@@ -3,7 +3,7 @@
 #
 # Opens a terminal program (wiremix, bluetui, nmtui, ...) in a small floating
 # kitty window under the bar, or closes it if it's already open.
-# The app-id must start with "popup." so the window rule in hyprland.lua
+# The app-id must start with "popup." so the window rule in modules/rules.lua
 # floats and positions it.
 
 id="$1"
