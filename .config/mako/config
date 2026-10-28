@@ -11,18 +11,14 @@ max-visible=5
 icons=1
 max-icon-size=48
 
-# RRGGBBAA hex: red, green, blue, alpha (opacity). d9 is your 0.85
-background-color=#141418d9
-text-color=#d0d0d0
-border-color=#33ccff
-progress-color=over #282830
+# Colours come from ~/.config/theme/palette.lua (run ~/.config/theme/apply).
+# Keep this include before the first [section] so its colours apply globally.
+include=~/.config/theme/generated/mako.conf
 
 [urgency=low]
-border-color=#707070
 default-timeout=20000
 
 [urgency=high]
-border-color=#ff3366
 default-timeout=0
 
 [mode=do-not-disturb]

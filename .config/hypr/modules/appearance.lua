@@ -2,6 +2,9 @@
 ---- LOOK AND FEEL ----
 -----------------------
 
+-- Colours from the shared palette; hex strings without '#'
+local p = dofile(os.getenv("HOME") .. "/.config/theme/palette.lua")
+
 hl.config({
 	render = {
 		direct_scanout = true, -- Bypasses compositor for fullscreen windows
@@ -13,8 +16,8 @@ hl.config({
 		border_size = 2,
 
 		col = {
-			active_border = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
-			inactive_border = "rgba(595959aa)",
+			active_border = { colors = { "rgba(" .. p.accent .. "ee)", "rgba(" .. p.accent2 .. "ee)" }, angle = 45 },
+			inactive_border = "rgba(" .. p.muted .. "aa)",
 		},
 
 		resize_on_border = true, -- drag borders/gaps with the mouse to resize
@@ -33,7 +36,7 @@ hl.config({
 			enabled = true,
 			range = 4,
 			render_power = 3,
-			color = 0xee1a1a1a,
+			color = "rgba(" .. p.shadow .. "ee)",
 		},
 
 		blur = {

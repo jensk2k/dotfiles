@@ -1,11 +1,5 @@
-@define-color bg        rgba(20, 20, 24, 0.85);
-@define-color bg2       rgba(40, 40, 48, 0.85);
-@define-color fg        #d0d0d0;
-@define-color dim       #707070;
-@define-color accent    #33ccff;
-@define-color accent2   #00ff99;
-@define-color warn      #ffaa33;
-@define-color crit      #ff3366;
+/* Colours (@bg, @accent, ...) come from ~/.config/theme/palette.lua (run ~/.config/theme/apply) */
+@import "../theme/generated/waybar.css";
 
 * {
     transition: none;
