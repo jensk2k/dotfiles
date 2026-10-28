@@ -44,7 +44,7 @@ hl.window_rule({
 -- Small settings dialogs float instead of tiling
 hl.window_rule({
 	name = "float-settings-dialogs",
-	match = { class = "^(org.pulseaudio.pavucontrol|blueman-manager|nm-connection-editor)$" },
+	match = { class = "^(org.pulseaudio.pavucontrol|blueman-manager|nm-connection-editor|firewall-config)$" },
 	float = true,
 })
 
