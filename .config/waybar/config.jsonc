@@ -66,8 +66,8 @@
             "mode": "month",
             "weeks-pos": "left",
             "format": {
-                "weeks": "<span color='#595959'>W{}</span>",
-                "today": "<span color='#00ff99'><b>{}</b></span>"
+                "weeks": "<span color='#86878b'>W{}</span>",
+                "today": "<span color='#69ff94'><b>{}</b></span>"
             }
         }
     },

@@ -1,19 +1,33 @@
 -- ~/.config/theme/palette.lua
--- Single source of truth for the desktop colours. Hex without '#', no alpha.
--- Hyprland reads this file directly; for Waybar, mako, fuzzel and hyprlock,
--- run ~/.config/theme/apply after editing to regenerate their colour files.
+-- Picks the colour scheme for the whole desktop. After editing, run
+-- ~/.config/theme/apply (or `apply "Theme Name"`, or `apply --pick` / SUPER + SHIFT + T).
+--
+-- `theme` is any kitty theme name (`kitten themes` lists them). apply reads its
+-- colours from kitty and derives the palette slots:
+--   bg, fg            background and text
+--   surface, dim      blends of bg and fg: raised elements, secondary text/borders
+--   accent, accent2   the theme's blue and green
+--   warn, crit        the theme's yellow and red
+-- For the four colour slots it picks the normal or bright variant, whichever
+-- stands out more against bg. The result is written to generated/palette.lua.
 return {
-	bg = "141418", -- panel/notification background (drawn at bg_alpha)
-	surface = "282830", -- raised elements: bar modules, selection, progress
-	fg = "d0d0d0", -- normal text
-	fg_bright = "ffffff", -- emphasized text (selected item)
-	dim = "707070", -- secondary text, low-urgency borders
-	muted = "595959", -- inactive window borders, calendar week numbers
-	accent = "33ccff", -- primary accent (cyan)
-	accent2 = "00ff99", -- secondary accent (green)
-	warn = "ffaa33", -- warnings
-	crit = "ff3366", -- errors, critical, urgent
-	shadow = "1a1a1a", -- window shadows
+	theme = "Dracula",
 
-	bg_alpha = 0.92, -- opacity of bg and surface where they're translucent
+	-- Opacity of bg and surface in Waybar, mako and fuzzel
+	bg_alpha = 0.92,
+
+	-- Shown first in the picker, before all other kitty themes
+	favorites = {
+		"Dracula",
+		"Gruvbox Dark",
+		"Catppuccin-Mocha",
+		"Catppuccin-Latte",
+		"Nord",
+		"Tokyo Night",
+		"Rosé Pine",
+	},
+
+	-- Per-theme slot overrides, hex without '#', e.g.
+	-- ["Rosé Pine"] = { accent2 = "ebbcba" },
+	overrides = {},
 }
