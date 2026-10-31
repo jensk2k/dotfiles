@@ -11,7 +11,7 @@
 -- For the four colour slots it picks the normal or bright variant, whichever
 -- stands out more against bg. The result is written to generated/palette.lua.
 return {
-	theme = "Dracula",
+	theme = "Tokyo Night",
 
 	-- Opacity of bg and surface in Waybar, mako and fuzzel
 	bg_alpha = 0.92,

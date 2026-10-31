@@ -66,8 +66,8 @@
             "mode": "month",
             "weeks-pos": "left",
             "format": {
-                "weeks": "<span color='#86878b'>W{}</span>",
-                "today": "<span color='#69ff94'><b>{}</b></span>"
+                "weeks": "<span color='#656a83'>W{}</span>",
+                "today": "<span color='#9fe044'><b>{}</b></span>"
             }
         }
     },
@@ -139,8 +139,8 @@
     // Volume: scroll to change
     "wireplumber": {
         "format": "{volume}% {icon}",
-        "format-muted": " muted",
-        "format-icons": ["", "", ""],
+        "format-muted": "󰝟 ",
+        "format-icons": ["", " ", " "],
         "scroll-step": 5,
         "tooltip-format": "{node_name}",
 //        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.mixer wiremix",
