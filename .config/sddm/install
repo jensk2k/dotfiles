@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# ~/.config/sddm/install
+# Installs the login screen: sddm.conf to /etc/sddm.conf and the theme to
+# /usr/share/sddm/themes/dotfiles, with the current hyprpaper wallpaper.
+# Re-run after changing the theme here or switching colour themes:
+#   sudo ~/.config/sddm/install
+# The first run moves the old SDDM setup to /var/backups/sddm-<date>/.
+set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+	echo "Run with sudo: sudo $0" >&2
+	exit 1
+fi
+
+src=$(dirname "$(readlink -f "$0")")
+home=$(getent passwd "${SUDO_USER:-$(stat -c %U "$src")}" | cut -d: -f6)
+dest=/usr/share/sddm/themes/dotfiles
+backup=/var/backups/sddm-$(date +%Y%m%d-%H%M%S)
+
+# Old setup: move aside instead of deleting
+old=(
+	/etc/sddm.conf.d/kde_settings.conf
+	/etc/sddm.conf.d/theme.conf
+	/etc/sddm.conf.d/virtualkbd.conf
+	/usr/share/sddm/themes/sddm-astronaut-theme
+	/usr/share/sddm/themes/custom-theme
+)
+for f in "${old[@]}"; do
+	if [[ -e $f ]]; then
+		mkdir -p "$backup"
+		mv "$f" "$backup/"
+		echo "Moved $f to $backup/"
+	fi
+done
+if [[ -f /etc/sddm.conf ]] && ! cmp -s /etc/sddm.conf "$src/sddm.conf"; then
+	mkdir -p "$backup"
+	cp /etc/sddm.conf "$backup/"
+fi
+rmdir --ignore-fail-on-non-empty /etc/sddm.conf.d 2>/dev/null || true
+
+install -Dm644 "$src/sddm.conf" /etc/sddm.conf
+
+rm -rf "$dest"
+install -d "$dest"
+install -m644 "$src"/theme/metadata.desktop "$src"/theme/Main.qml "$src"/theme/theme.conf "$src"/theme/theme.conf.user "$dest"/
+
+# Wallpaper: the first path in hyprpaper.conf
+wall=$(sed -n 's/^[[:space:]]*path[[:space:]]*=[[:space:]]*//p' "$home/.config/hypr/hyprpaper.conf" | head -n 1)
+wall=${wall/#\~/$home}
+if [[ -f $wall ]]; then
+	install -m644 "$wall" "$dest/background"
+else
+	echo "Wallpaper '$wall' not found; the login screen will use a plain background." >&2
+fi
+
+echo "Login screen installed. It shows the next time SDDM starts (log out, or reboot)."

@@ -205,6 +205,22 @@ $warn = rgba(%see)
 $crit = rgba(%see)
 ]]):format(header, p.fg, p.accent, p.accent2, p.warn, p.crit))
 
+-- SDDM login theme. It lives outside $HOME once installed, so it only updates
+-- after `sudo ~/.config/sddm/install` (see the reminder at the end).
+local sddm_colors = home .. "/.config/sddm/theme/theme.conf.user"
+write(sddm_colors, ([[
+; %s
+[General]
+Bg="#%s"
+Surface="#%s"
+Fg="#%s"
+Dim="#%s"
+Accent="#%s"
+Accent2="#%s"
+Warn="#%s"
+Crit="#%s"
+]]):format(header, p.bg, p.surface, p.fg, p.dim, p.accent, p.accent2, p.warn, p.crit))
+
 -- Waybar's config.jsonc can't include files, so patch the two calendar colours in place
 local cfg = home .. "/.config/waybar/config.jsonc"
 local json = read(cfg)
@@ -228,3 +244,12 @@ os.execute("makoctl reload >/dev/null 2>&1")
 os.execute("pkill -SIGUSR2 -x waybar")
 os.execute("notify-send --app-name=theme 'Theme: " .. theme:gsub("'", "") .. "' >/dev/null 2>&1")
 print("Theme applied: " .. theme)
+
+local installed = io.open("/usr/share/sddm/themes/dotfiles/theme.conf.user")
+if installed then
+	local same = installed:read("a") == read(sddm_colors)
+	installed:close()
+	if not same then
+		print("Login screen still has the old colours: sudo ~/.config/sddm/install")
+	end
+end
