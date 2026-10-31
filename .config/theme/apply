@@ -198,12 +198,13 @@ border=%sff
 
 write(gen .. "hyprlock.conf", ([[
 # %s
+$bg = rgb(%s)
 $fg = rgb(%s)
 $accent = rgba(%see)
 $accent2 = rgba(%see)
 $warn = rgba(%see)
 $crit = rgba(%see)
-]]):format(header, p.fg, p.accent, p.accent2, p.warn, p.crit))
+]]):format(header, p.bg, p.fg, p.accent, p.accent2, p.warn, p.crit))
 
 -- SDDM login theme. It lives outside $HOME once installed, so it only updates
 -- after `sudo ~/.config/sddm/install` (see the reminder at the end).

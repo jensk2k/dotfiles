@@ -123,8 +123,7 @@ Rectangle {
 			placeholderTextColor: config.Dim
 			background: Rectangle {
 				radius: 6
-				color: config.Surface
-				opacity: 0.9
+				color: config.Bg
 				border.width: 2
 				border.color: root.failed ? config.Crit : (password.activeFocus ? config.Accent : config.Dim)
 			}
