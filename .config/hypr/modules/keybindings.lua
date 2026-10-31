@@ -8,13 +8,16 @@ local launcher = "fuzzel"
 local mod = "SUPER"
 
 -- Apps
-hl.bind(mod .. " + Q", hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + B", hl.dsp.exec_cmd("brave"))
 hl.bind(mod .. " + Space", hl.dsp.exec_cmd(launcher))
+hl.bind(mod .. " + Q", hl.dsp.exec_cmd(terminal))
+hl.bind(mod .. " + W", hl.dsp.exec_cmd("brave"))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(terminal .. " yazi"))
 
 -- Clipboard history picker
-hl.bind(mod .. " + V", hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu --prompt \"Clipboard ❯ \" | cliphist decode | wl-copy"))
+hl.bind(
+	mod .. " + V",
+	hl.dsp.exec_cmd('cliphist list | fuzzel --dmenu --prompt "Clipboard ❯ " | cliphist decode | wl-copy')
+)
 
 -- Colour theme picker (any kitty theme; recolours the whole desktop)
 hl.bind(mod .. " + SHIFT + T", hl.dsp.exec_cmd("~/.config/theme/apply --pick"))

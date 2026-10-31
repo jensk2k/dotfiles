@@ -5,6 +5,7 @@ export TERMINAL="kitty"
 
 # Ensure local user binaries are in PATH
 export PATH="$HOME/.local/bin:$PATH"
+export SUDO_EDITOR=nvim
 
 # --- Zsh Options & Quality of Life ---
 # Navigate to a directory without typing 'cd'
