@@ -2,7 +2,8 @@
 ---- KEYBINDINGS ----
 ---------------------
 
--- Modifier scheme:
+-- Modifier scheme (shown as the legend on the SUPER + ? cheat sheet, which
+-- parses these lines: keep "--   MODIFIERS<2+ spaces>meaning" and the Directions line):
 --   SUPER           do it / focus it
 --   SUPER + SHIFT   move it / send it / the stronger version
 --   SUPER + ALT     resize / a variant

@@ -76,7 +76,17 @@ entries() {
 	'
 }
 
+# The modifier scheme, read from the header comment of keybindings.lua (the one
+# place the rules are written down): "SUPER + SHIFT<TAB>move it / ..." lines,
+# then the "Directions ..." note on its own line
+legend() {
+	awk '/^-- Modifier scheme/ { on = 1; next }
+		on && /^--   / { sub(/^--   /, ""); split($0, a, /  +/); print a[1] "\t" a[2]; next }
+		on && /^-- Directions/ { sub(/^-- /, ""); print; exit }' ~/.config/hypr/modules/keybindings.lua
+}
+
 if [[ $1 == --print ]]; then
+	legend | awk -F '\t' 'NF == 2 { printf "  %-26s %s\n", $1, $2; next } { print "  " $0 "\n" }'
 	entries | awk -F '\t' '$1 != last { if (NR > 1) print ""; print $1; last = $1 } { printf "  %-26s %s\n", $2, $3 }'
 	exit
 fi
@@ -85,12 +95,14 @@ fi
 # Colours are ANSI, so they follow the kitty (desktop) theme: section titles
 # in blue (accent), the modifiers dimmed and the key itself in green (accent2).
 data=$(entries)
+# Legend items joined with "|" for awk: "SUPER<TAB>do it / focus it|...|Directions ..."
+legend_items=$(legend | paste -sd '|')
 
 draw() {
 	local cols lines
 	cols=$(tput cols) lines=$(tput lines)
 	printf '\033[2J\033[H'
-	awk -F '\t' -v W="$cols" -v H="$lines" '
+	awk -F '\t' -v W="$cols" -v H="$lines" -v L="$legend_items" '
 		function rep(n,   s) { s = ""; while (n-- > 0) s = s " "; return s }
 		# "SUPER + SHIFT + ←/H" -> dim "SUPER + SHIFT + ", bold green "←/H"
 		function style(combo,   p, i) {
@@ -127,8 +139,25 @@ draw() {
 			used = c; maxh = 0; for (c = 1; c <= used; c++) if (len[c] > maxh) maxh = len[c]
 
 			left = int((W - (used * cw + (used - 1) * gap)) / 2); if (left < 0) left = 0
-			top = int((H - maxh - 2) / 2); if (top < 0) top = 0
+			# Legend: the modifier scheme on one line (wrapped if too wide), then the directions note
+			nl = split(L, item, "|"); lg = ""; lp = ""; note = ""; nlines = 0
+			for (i = 1; i <= nl; i++) {
+				if (split(item[i], f, "\t") < 2) { note = item[i]; continue }
+				part = "\033[1;32m" f[1] "\033[0m  " f[2]; ppart = f[1] "  " f[2]
+				sep = (lp == "") ? "" : "      "
+				if (lp != "" && length(lp sep ppart) > W - 2 * margin) {
+					leg[++nlines] = lg; legp[nlines] = lp; lg = ""; lp = ""; sep = ""
+				}
+				lg = lg sep part; lp = lp sep ppart
+			}
+			if (lp != "") { leg[++nlines] = lg; legp[nlines] = lp }
+			extra = nlines + (note != "" ? 1 : 0) + 2
+
+			top = int((H - maxh - extra - 2) / 2); if (top < 0) top = 0
 			for (r = 0; r < top; r++) print ""
+			for (i = 1; i <= nlines; i++) print rep(int((W - length(legp[i])) / 2)) leg[i]
+			if (note != "") print rep(int((W - length(note)) / 2)) "\033[2m" note "\033[0m"
+			print ""; print ""
 			for (r = 1; r <= maxh; r++) {
 				out = rep(left)
 				for (c = 1; c <= used; c++) {
