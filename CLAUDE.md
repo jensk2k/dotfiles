@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Scope:** these instructions are for working on the dotfiles. Because this file sits in `~`, Claude Code also loads it in every project below the home folder (e.g. `~/Projects/*`); there, ignore it and follow that project's own `CLAUDE.md`.
+
 ## What this is
 
 `~/.dotfiles` is a **bare git repo** (remote `git@github.com:jensk2k/dotfiles.git`) whose work tree is `$HOME`. `~/.dotfiles` itself contains only git internals; the config files live at their real paths under `/home/jk`. Edit files in place (e.g. `~/.config/hypr/hyprland.lua`). This file (`~/CLAUDE.md`) is tracked in the repo too.
@@ -53,5 +55,5 @@ No build/test suite. To sanity-check:
 
 The user's goals for this setup, in no particular order. Notes are starting points, not decisions. Remove an item once it's done.
 
-- **Slowly morphing shader wallpaper**: one GLSL shader whose image is a pure function of wall-clock time, so every screen shows the same moment. Desktop: a small headless renderer (C, EGL surfaceless + GLES on the Intel UHD, writes a PNG) handed to hyprpaper, about once a minute, with the rate set by power profile (e.g. 30 s / 1 min / 5 min); changes between frames must be small enough not to pop, plus dithering against banding. Login: live 60 fps `ShaderEffect` in the SDDM theme (compile with `/usr/lib/qt6/bin/qsb`). Lock: hyprlock can't run shaders and nothing can draw over a session lock (don't write a custom locker), so render every few seconds via `reload_cmd`/`reload_time` and let `crossfade_time` smooth it. Colours: palette via `apply`, then time of day/year; weather (Open-Meteo, cached hourly, offline fallback, sends approximate location) last. Unverified: hyprpaper's IPC for swapping images (a bare `hyprctl hyprpaper` returned "Invalid request") and whether swaps flash. Plan: desktop prototype first (look + measured battery cost), then colours, login, lock, weather; ask the user what look they want (soft gradients are cheapest and hide steps best).
+- **Integrate nacre** (`~/Projects/nacre`, its own repo: the slowly morphing shader wallpaper, whose plan lives in its `CLAUDE.md`): once it renders, the dotfiles side is its config, a timer per power profile, handing the PNG to hyprpaper, hyprlock's `reload_cmd`/`crossfade_time`, a `ShaderEffect` in the SDDM theme, and a colours file written by `~/.config/theme/apply`.
 - **Smaller ideas**: more fuzzel menus (emoji picker, Bluetooth) and installing `mpv-mpris` so mpv shows up in the Waybar `mpris` module.
