@@ -34,8 +34,28 @@
     "hyprland/workspaces": {
         "disable-scroll": false,
         "on-click": "activate",
-        "format": "{id}",
-        "persistent-workspaces": { "*": 5 },
+        // Workspace number, then an icon per window. Only workspaces with
+        // windows (or the active one) are shown. Title rules come first so
+        // yazi/nvim inside kitty get their own icon.
+        "format": "{id} {windows}",
+        "format-window-separator": " ",
+        "window-rewrite-default": "󰣆",
+        "window-rewrite": {
+            "title<.*yazi.*>": "󰉋", // yazi in kitty: folder
+            "title<.*n?vim.*>": "", // Neovim in kitty
+            "class<popup\\..*|keys\\.cheatsheet>": "", // bar popups and the cheat sheet: no icon
+            "class<kitty>": "󰆍",
+            "class<brave-browser>": "󰖟",
+            "class<signal>": "󰭹",
+            "class<mpv>": "󰐹",
+            "class<com.gabm.satty>": "󰏫",
+            "class<steam>": "󰓓",
+            "class<thunar>": "󰉋",
+            "class<org.pulseaudio.pavucontrol>": "󰕾",
+            "class<blueman-.*>": "󰂯",
+            "class<nm-connection-editor>": "󰖩",
+            "class<Bitwarden>": "󰌆"
+        },
         "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
         "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
     },
