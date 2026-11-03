@@ -45,6 +45,7 @@ bind(
 	"Clipboard history"
 )
 bind(mod .. " + slash", hl.dsp.exec_cmd(scripts .. "window-finder.sh"), "Find a window")
+bind(mod .. " + period", hl.dsp.exec_cmd(scripts .. "emoji.sh"), "Emoji picker")
 bind(mod .. " + SHIFT + slash", hl.dsp.exec_cmd(scripts .. "keybinds.sh"), "This cheat sheet")
 
 -- Window management

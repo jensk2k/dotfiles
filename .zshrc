@@ -3,6 +3,9 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 export TERMINAL="kitty"
 
+# Keep PATH free of duplicates (nested shells would otherwise add entries again)
+typeset -U path PATH
+
 # Ensure local user binaries are in PATH
 export PATH="$HOME/.local/bin:$PATH"
 # Tools installed with `cargo install` (cargo itself is in /usr/bin via rustup)
