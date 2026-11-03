@@ -5,6 +5,8 @@ export TERMINAL="kitty"
 
 # Ensure local user binaries are in PATH
 export PATH="$HOME/.local/bin:$PATH"
+# Tools installed with `cargo install` (cargo itself is in /usr/bin via rustup)
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # Stop here for non-interactive shells (scp, rsync, `ssh host cmd`)
 [[ $- != *i* ]] && return
