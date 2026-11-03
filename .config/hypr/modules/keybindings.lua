@@ -2,8 +2,16 @@
 ---- KEYBINDINGS ----
 ---------------------
 
+-- Modifier scheme:
+--   SUPER           do it / focus it
+--   SUPER + SHIFT   move it / send it / the stronger version
+--   SUPER + ALT     resize / a variant
+--   SUPER + CTRL    system: settings, toggles, session
+-- Directions work with both the arrow keys and vim-style h/j/k/l.
+
 local terminal = "kitty"
 local launcher = "fuzzel"
+local scripts = "~/.config/hypr/scripts/"
 
 local mod = "SUPER"
 
@@ -19,15 +27,12 @@ hl.bind(
 	hl.dsp.exec_cmd('cliphist list | fuzzel --dmenu --prompt "Clipboard ❯ " | cliphist decode | wl-copy')
 )
 
--- Colour theme picker (any kitty theme; recolours the whole desktop)
-hl.bind(mod .. " + SHIFT + T", hl.dsp.exec_cmd("~/.config/theme/apply --pick"))
-
 -- Window management
 hl.bind(mod .. " + C", hl.dsp.window.close())
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "maximized" }))
 hl.bind(mod .. " + T", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mod .. " + J", hl.dsp.layout("togglesplit")) -- flip horizontal/vertical split
+hl.bind(mod .. " + D", hl.dsp.layout("togglesplit")) -- flip horizontal/vertical split
 hl.bind(mod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mod .. " + O", hl.dsp.window.pin()) -- keep a floating window on all workspaces
 
@@ -35,24 +40,25 @@ hl.bind(mod .. " + O", hl.dsp.window.pin()) -- keep a floating window on all wor
 hl.bind(mod .. " + G", hl.dsp.group.toggle())
 hl.bind(mod .. " + ALT + Tab", hl.dsp.group.next())
 
--- Move focus
-hl.bind(mod .. " + left", hl.dsp.focus({ direction = "left" }))
-hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mod .. " + up", hl.dsp.focus({ direction = "up" }))
-hl.bind(mod .. " + down", hl.dsp.focus({ direction = "down" }))
-
--- Swap windows
-hl.bind(mod .. " + SHIFT + left", hl.dsp.window.swap({ direction = "left" }))
-hl.bind(mod .. " + SHIFT + right", hl.dsp.window.swap({ direction = "right" }))
-hl.bind(mod .. " + SHIFT + up", hl.dsp.window.swap({ direction = "up" }))
-hl.bind(mod .. " + SHIFT + down", hl.dsp.window.swap({ direction = "down" }))
-
--- Resize the active window (hold to keep resizing)
+-- Focus (SUPER), swap (SUPER + SHIFT) and resize (SUPER + ALT, hold to repeat)
 local step = 40
-hl.bind(mod .. " + ALT + left", hl.dsp.window.resize({ x = -step, y = 0, relative = true }), { repeating = true })
-hl.bind(mod .. " + ALT + right", hl.dsp.window.resize({ x = step, y = 0, relative = true }), { repeating = true })
-hl.bind(mod .. " + ALT + up", hl.dsp.window.resize({ x = 0, y = -step, relative = true }), { repeating = true })
-hl.bind(mod .. " + ALT + down", hl.dsp.window.resize({ x = 0, y = step, relative = true }), { repeating = true })
+local directions = {
+	{ keys = { "left", "H" }, dir = "left", x = -step, y = 0 },
+	{ keys = { "down", "J" }, dir = "down", x = 0, y = step },
+	{ keys = { "up", "K" }, dir = "up", x = 0, y = -step },
+	{ keys = { "right", "L" }, dir = "right", x = step, y = 0 },
+}
+for _, d in ipairs(directions) do
+	for _, key in ipairs(d.keys) do
+		hl.bind(mod .. " + " .. key, hl.dsp.focus({ direction = d.dir }))
+		hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.swap({ direction = d.dir }))
+		hl.bind(
+			mod .. " + ALT + " .. key,
+			hl.dsp.window.resize({ x = d.x, y = d.y, relative = true }),
+			{ repeating = true }
+		)
+	end
+end
 
 -- Workspaces: SUPER + 1..0 to switch, SUPER + SHIFT + 1..0 to send the window there
 for i = 1, 10 do
@@ -61,9 +67,10 @@ for i = 1, 10 do
 	hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
--- Cycle through open workspaces
+-- Cycle through open workspaces; SUPER + CTRL + Tab jumps back to the previous one
 hl.bind(mod .. " + Tab", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mod .. " + SHIFT + Tab", hl.dsp.focus({ workspace = "e-1" }))
+hl.bind(mod .. " + CTRL + Tab", hl.dsp.focus({ workspace = "previous" }))
 hl.bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
@@ -75,12 +82,20 @@ hl.bind(mod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:scratch
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
+-- System (SUPER + CTRL)
+hl.bind(mod .. " + CTRL + L", hl.dsp.exec_cmd("loginctl lock-session")) -- hypridle runs hyprlock
+hl.bind(mod .. " + CTRL + T", hl.dsp.exec_cmd("~/.config/theme/apply --pick")) -- colour theme picker
+hl.bind(mod .. " + CTRL + A", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.mixer wiremix")) -- audio mixer
+hl.bind(mod .. " + CTRL + B", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.bluetooth bluetui"))
+hl.bind(mod .. " + CTRL + P", hl.dsp.exec_cmd(scripts .. "power-profile.sh")) -- cycle power profile
+hl.bind(mod .. " + CTRL + I", hl.dsp.exec_cmd(scripts .. "idle-inhibit.sh toggle")) -- stay awake on/off
+
 -- Session
-hl.bind(mod .. " + L", hl.dsp.exec_cmd("loginctl lock-session")) -- hypridle runs hyprlock
+hl.bind(mod .. " + Escape", hl.dsp.exec_cmd(scripts .. "power-menu.sh"))
 hl.bind(mod .. " + SHIFT + Escape", hl.dsp.exec_cmd("uwsm stop")) -- log out cleanly
 
 -- Screenshots: saved to ~/Pictures/Screenshots and copied; click the notification to annotate
-local screenshot = "~/.config/hypr/scripts/screenshot.sh"
+local screenshot = scripts .. "screenshot.sh"
 hl.bind("Print", hl.dsp.exec_cmd(screenshot .. " region"))
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(screenshot .. " screen"))
 hl.bind(mod .. " + Print", hl.dsp.exec_cmd(screenshot .. " window"))
@@ -109,5 +124,5 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 -- Notifications (Mako)
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("makoctl dismiss"))
 hl.bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("makoctl dismiss --all"))
-hl.bind(mod .. " + CTRL + N", hl.dsp.exec_cmd("makoctl restore"))
-hl.bind(mod .. " + ALT + N", hl.dsp.exec_cmd("makoctl mode -t do-not-disturb ; pkill -RTMIN+8 waybar"))
+hl.bind(mod .. " + ALT + N", hl.dsp.exec_cmd("makoctl restore"))
+hl.bind(mod .. " + CTRL + N", hl.dsp.exec_cmd("makoctl mode -t do-not-disturb ; pkill -RTMIN+8 waybar"))

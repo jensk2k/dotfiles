@@ -62,7 +62,7 @@ tooltip {
 
 #temperature,
 #backlight,
-#idle_inhibitor,
+#custom-idle,
 #custom-notifications,
 #workspaces,
 #wireplumber,
@@ -79,7 +79,7 @@ tooltip {
 }
 
 /* Status icons react to hover, since they're all clickable now */
-#idle_inhibitor:hover,
+#custom-idle:hover,
 #wireplumber:hover,
 #bluetooth:hover,
 #mpris:hover,
@@ -99,7 +99,7 @@ tooltip {
     font-weight: bold;
 }
 
-#idle_inhibitor.activated {
+#custom-idle.activated {
     color: @accent2;
 }
 
