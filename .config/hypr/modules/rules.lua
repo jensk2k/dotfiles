@@ -64,3 +64,12 @@ hl.window_rule({
 	size = { 720, 460 },
 	move = { "monitor_w - window_w - 10", 40 },
 })
+
+-- Keybinding cheat sheet (SUPER + ?, scripts/keybinds.sh): almost fullscreen, centred
+hl.window_rule({
+	name = "cheatsheet",
+	match = { class = "^keys\\.cheatsheet$" },
+	float = true,
+	size = { "monitor_w * 0.9", "monitor_h * 0.85" },
+	center = true,
+})

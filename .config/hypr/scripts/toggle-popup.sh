@@ -14,5 +14,6 @@ addr=$(hyprctl clients -j | jq -r --arg id "$id" '.[] | select(.class == $id) | 
 if [ -n "$addr" ]; then
     hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null
 else
-    exec uwsm app -- kitty --class="$id" "$@"
+    # No "close this window?" prompt, so toggling closes it even while the program runs
+    exec uwsm app -- kitty --class="$id" -o confirm_os_window_close=0 "$@"
 fi
