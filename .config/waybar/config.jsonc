@@ -50,7 +50,6 @@
             "class<mpv>": "󰐹",
             "class<com.gabm.satty>": "󰏫",
             "class<steam>": "󰓓",
-            "class<thunar>": "󰉋",
             "class<org.pulseaudio.pavucontrol>": "󰕾",
             "class<blueman-.*>": "󰂯",
             "class<nm-connection-editor>": "󰖩",
