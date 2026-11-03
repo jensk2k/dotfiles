@@ -8,6 +8,8 @@
 #   (no argument)  toggle a near-fullscreen kitty window showing --show
 #   --show         draw the sheet in columns in this terminal; any key closes
 #   --print        plain text to stdout
+#   --check        report binds without a description or section, and keys
+#                  bound twice; exits 1 if there are any
 
 self=$(readlink -f "$0")
 
@@ -17,29 +19,49 @@ if [[ -z ${1:-} ]]; then
 	exec ~/.config/hypr/scripts/toggle-popup.sh keys.cheatsheet -o font_size=10 -o background_opacity=1 "$self" --show
 fi
 
+# jq helpers: modifier names from a modmask, readable key names, and
+# combo -> {prefix: "SUPER + SHIFT", key: "←"} for one bind
+jq_defs='
+	def mods:
+		[ (if . / 64 | floor % 2 == 1 then "SUPER" else empty end),
+		  (if . / 4  | floor % 2 == 1 then "CTRL"  else empty end),
+		  (if . / 8  | floor % 2 == 1 then "ALT"   else empty end),
+		  (if .      % 2 == 1         then "SHIFT" else empty end) ];
+	def key:
+		{ "left": "←", "right": "→", "up": "↑", "down": "↓",
+		  "mouse:272": "Left drag", "mouse:273": "Right drag",
+		  "slash": "?", "Escape": "Esc", "Print": "PrtSc",
+		  "XF86AudioRaiseVolume": "Vol +", "XF86AudioLowerVolume": "Vol −",
+		  "XF86AudioMute": "Mute", "XF86AudioMicMute": "Mic mute",
+		  "XF86MonBrightnessUp": "Bright +", "XF86MonBrightnessDown": "Bright −",
+		  "XF86AudioNext": "Next", "XF86AudioPrev": "Prev",
+		  "XF86AudioPlay": "Play", "XF86AudioPause": "Pause" }[.] // .;
+	# SHIFT + slash is "?": drop SHIFT there
+	def combo:
+		(if .key == "slash" then (.modmask - 1) else .modmask end) as $m
+		| { prefix: ($m | mods | join(" + ")), key: (.key | key) };
+	def name: combo | (if .prefix == "" then "" else .prefix + " + " end) + .key;
+'
+
+if [[ $1 == --check ]]; then
+	problems=$(hyprctl -j binds | jq -r "$jq_defs"'
+		(.[] | select(.has_description | not) | "no description: \(name)"),
+		(.[] | select(.has_description and (.description | contains("|") | not))
+		 | "no section (call group() first): \(name)  \(.description)"),
+		(group_by([.submap, .modmask, .key, .keycode]) | .[] | select(length > 1)
+		 | "bound \(length) times: \(.[0] | name)")
+	')
+	if [[ -n $problems ]]; then
+		printf '%s\n' "$problems"
+		exit 1
+	fi
+	echo "keybindings ok: $(hyprctl -j binds | jq length) binds"
+	exit
+fi
+
 # One "section<TAB>keys<TAB>description" line per merged bind, in config order
 entries() {
-	hyprctl -j binds | jq -r '
-		def mods:
-			[ (if . / 64 | floor % 2 == 1 then "SUPER" else empty end),
-			  (if . / 4  | floor % 2 == 1 then "CTRL"  else empty end),
-			  (if . / 8  | floor % 2 == 1 then "ALT"   else empty end),
-			  (if .      % 2 == 1         then "SHIFT" else empty end) ];
-		def key:
-			{ "left": "←", "right": "→", "up": "↑", "down": "↓",
-			  "mouse:272": "Left drag", "mouse:273": "Right drag",
-			  "mouse_down": "Scroll ↓", "mouse_up": "Scroll ↑",
-			  "slash": "?", "Escape": "Esc", "Print": "PrtSc",
-			  "XF86AudioRaiseVolume": "Vol +", "XF86AudioLowerVolume": "Vol −",
-			  "XF86AudioMute": "Mute", "XF86AudioMicMute": "Mic mute",
-			  "XF86MonBrightnessUp": "Bright +", "XF86MonBrightnessDown": "Bright −",
-			  "XF86AudioNext": "Next", "XF86AudioPrev": "Prev",
-			  "XF86AudioPlay": "Play", "XF86AudioPause": "Pause" }[.] // .;
-		# SHIFT + slash is "?": drop SHIFT there
-		def combo:
-			(if .key == "slash" then (.modmask - 1) else .modmask end) as $m
-			| { prefix: ($m | mods | join(" + ")), key: (.key | key) };
-
+	hyprctl -j binds | jq -r "$jq_defs"'
 		[ .[] | select(.has_description)
 		  | (.description | split("|")) as $d
 		  | { section: (if ($d | length) > 1 then $d[0] else "Other" end), description: $d[-1] } + combo ]
@@ -60,8 +82,8 @@ if [[ $1 == --print ]]; then
 fi
 
 # --show: lay the sections out in as many columns as fit, centred.
-# Colours are ANSI, so they follow the kitty (desktop) theme:
-# section titles in blue (accent), keys in green (accent2).
+# Colours are ANSI, so they follow the kitty (desktop) theme: section titles
+# in blue (accent), the modifiers dimmed and the key itself in green (accent2).
 data=$(entries)
 
 draw() {
@@ -70,6 +92,12 @@ draw() {
 	printf '\033[2J\033[H'
 	awk -F '\t' -v W="$cols" -v H="$lines" '
 		function rep(n,   s) { s = ""; while (n-- > 0) s = s " "; return s }
+		# "SUPER + SHIFT + ←/H" -> dim "SUPER + SHIFT + ", bold green "←/H"
+		function style(combo,   p, i) {
+			p = ""
+			while ((i = index(combo, " + ")) > 0) { p = p substr(combo, 1, i + 2); combo = substr(combo, i + 3) }
+			return "\033[2m" p "\033[0;1;32m" combo "\033[0m"
+		}
 		{
 			if ($1 != cur) { nb++; title[nb] = $1; cur = $1 }
 			n[nb]++; k[nb, n[nb]] = $2; d[nb, n[nb]] = $3
@@ -77,8 +105,9 @@ draw() {
 			if (length($3) > dw) dw = length($3)
 		}
 		END {
-			gap = 5; cw = kw + 2 + dw
-			nc = int((W + gap) / (cw + gap)); if (nc < 1) nc = 1
+			# Column gap and minimum side margin, in characters
+			gap = 5; margin = 6; cw = kw + 2 + dw
+			nc = int((W - 2 * margin + gap) / (cw + gap)); if (nc < 1) nc = 1
 			total = 0; for (b = 1; b <= nb; b++) total += n[b] + 2
 			target = int((total + nc - 1) / nc)
 
@@ -90,7 +119,7 @@ draw() {
 				if (h > 0) { rows[c, ++len[c]] = ""; plain[c, len[c]] = ""; h++ }
 				rows[c, ++len[c]] = "\033[1;34m" title[b] "\033[0m"; plain[c, len[c]] = title[b]
 				for (i = 1; i <= n[b]; i++) {
-					line = "\033[32m" k[b, i] "\033[0m" rep(kw - length(k[b, i]) + 2) d[b, i]
+					line = style(k[b, i]) rep(kw - length(k[b, i]) + 2) d[b, i]
 					rows[c, ++len[c]] = line; plain[c, len[c]] = k[b, i] rep(kw - length(k[b, i]) + 2) d[b, i]
 				}
 				h += bh

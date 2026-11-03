@@ -105,8 +105,6 @@ end
 bind(mod .. " + Tab", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
 bind(mod .. " + SHIFT + Tab", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
 bind(mod .. " + CTRL + Tab", hl.dsp.focus({ workspace = "previous" }), "Back to last workspace")
-bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
-bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
 
 -- Scratchpad: a hidden workspace you can pop over anything
 bind(mod .. " + S", hl.dsp.workspace.toggle_special("scratch"), "Show / hide scratchpad")

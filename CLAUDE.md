@@ -42,6 +42,7 @@ git --git-dir=$HOME/.dotfiles ls-tree -r --name-only HEAD   # list tracked files
 No build/test suite. To sanity-check:
 - Lua syntax: `luac -p <file.lua>`
 - Hyprland reload / errors: `hyprctl reload`, then `hyprctl configerrors`
+- Keybindings: `~/.config/hypr/scripts/keybinds.sh --check` (after the reload) reports binds without a description or section and keys bound twice
 - Waybar: `pkill waybar; uwsm app -- waybar &` (or `pkill -SIGUSR2 waybar` to reload)
 - Mako: `makoctl reload`
 - If `hyprctl` says "Couldn't connect to .../.socket.sock", the shell's `HYPRLAND_INSTANCE_SIGNATURE` is from an old session (e.g. after a re-login): `export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t /run/user/1000/hypr/ | head -1)`
