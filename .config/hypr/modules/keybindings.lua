@@ -44,6 +44,7 @@ bind(
 	hl.dsp.exec_cmd('cliphist list | fuzzel --dmenu --prompt "Clipboard ❯ " | cliphist decode | wl-copy'),
 	"Clipboard history"
 )
+bind(mod .. " + slash", hl.dsp.exec_cmd(scripts .. "window-finder.sh"), "Find a window")
 bind(mod .. " + SHIFT + slash", hl.dsp.exec_cmd(scripts .. "keybinds.sh"), "This cheat sheet")
 
 -- Window management
@@ -52,6 +53,11 @@ bind(mod .. " + C", hl.dsp.window.close(), "Close window")
 bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Fullscreen")
 bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "maximized" }), "Maximize")
 bind(mod .. " + T", hl.dsp.window.float({ action = "toggle" }), "Float / tile window")
+-- Directional focus only moves between tiled windows, so this jumps between the layers
+bind(mod .. " + ALT + T", function()
+	local w = hl.get_active_window()
+	hl.dispatch(hl.dsp.focus({ window = (w and w.floating) and "tiled" or "floating" }))
+end, "Focus floating / tiled windows")
 bind(mod .. " + D", hl.dsp.layout("togglesplit"), "Flip split direction")
 bind(mod .. " + P", hl.dsp.window.pseudo(), "Pseudo-tile window")
 bind(mod .. " + O", hl.dsp.window.pin(), "Pin window to all workspaces")
@@ -83,7 +89,15 @@ each_direction(function(d, key)
 	bind(mod .. " + " .. key, hl.dsp.focus({ direction = d.dir }), "Focus " .. d.dir)
 end)
 each_direction(function(d, key)
-	bind(mod .. " + SHIFT + " .. key, hl.dsp.window.swap({ direction = d.dir }), "Swap window " .. d.dir)
+	-- Tiled windows swap places; floating ones move by one step instead
+	bind(mod .. " + SHIFT + " .. key, function()
+		local w = hl.get_active_window()
+		if w and w.floating then
+			hl.dispatch(hl.dsp.window.move({ x = d.x, y = d.y, relative = true }))
+		else
+			hl.dispatch(hl.dsp.window.swap({ direction = d.dir }))
+		end
+	end, "Swap / move window " .. d.dir)
 end)
 each_direction(function(d, key)
 	bind(
@@ -122,6 +136,7 @@ bind(mod .. " + CTRL + L", hl.dsp.exec_cmd("loginctl lock-session"), "Lock scree
 bind(mod .. " + CTRL + T", hl.dsp.exec_cmd("~/.config/theme/apply --pick"), "Colour theme picker")
 bind(mod .. " + CTRL + A", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.mixer wiremix"), "Audio mixer")
 bind(mod .. " + CTRL + B", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.bluetooth bluetui"), "Bluetooth")
+bind(mod .. " + CTRL + W", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.network nmtui connect"), "Wi-Fi")
 bind(mod .. " + CTRL + P", hl.dsp.exec_cmd(scripts .. "power-profile.sh"), "Cycle power profile")
 bind(mod .. " + CTRL + I", hl.dsp.exec_cmd(scripts .. "idle-inhibit.sh toggle"), "Stay awake on / off")
 
@@ -178,6 +193,13 @@ bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), "Previous track", {
 
 -- Notifications (Mako)
 group("Notifications")
+-- SUPER + M does what clicking the newest notification does; SHIFT picks one of its actions
+bind(mod .. " + M", hl.dsp.exec_cmd("makoctl invoke"), "Act on notification (like a click)")
+bind(
+	mod .. " + SHIFT + M",
+	hl.dsp.exec_cmd('makoctl menu fuzzel --dmenu --prompt "Action ❯ "'),
+	"Choose a notification action"
+)
 bind(mod .. " + N", hl.dsp.exec_cmd("makoctl dismiss"), "Dismiss notification")
 bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("makoctl dismiss --all"), "Dismiss all notifications")
 bind(mod .. " + ALT + N", hl.dsp.exec_cmd("makoctl restore"), "Restore last notification")

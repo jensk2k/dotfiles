@@ -58,7 +58,7 @@ hl.window_rule({
 
 hl.window_rule({
 	name = "bar-popups",
-	match = { class = "^popup\\." },
+	match = { class = "^popup\\..*" }, -- rule patterns must match the whole class
 	float = true,
 	pin = true,
 	size = { 720, 460 },

@@ -54,7 +54,7 @@
             "class<org.pulseaudio.pavucontrol>": "󰕾",
             "class<blueman-.*>": "󰂯",
             "class<nm-connection-editor>": "󰖩",
-            "class<Bitwarden>": "󰌆"
+            "class<[Bb]itwarden>": "󰌆"
         },
         "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e-1\" })'",
         "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"e+1\" })'"
