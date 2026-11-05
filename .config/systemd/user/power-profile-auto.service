@@ -1,0 +1,12 @@
+[Unit]
+Description=Switch power profile on charger plug/unplug
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.config/hypr/scripts/power-profile-auto.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
