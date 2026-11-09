@@ -98,10 +98,31 @@ local function derive(kitty, theme)
 		warn = pick(3, 11),
 		crit = pick(1, 9),
 	}
+	-- Contrast safeguard: an accent slot that's too faint on bg (under 3:1, the
+	-- usual minimum for borders and icons) is darkened on light themes or
+	-- lightened on dark ones, in small steps, until it passes. The hue stays.
+	-- Returns the adjusted slot names; overrides below are never adjusted.
+	local adjusted = {}
+	local towards = luminance(p.bg) > luminance(p.fg) and "000000" or "ffffff"
+	for _, slot in ipairs({ "accent", "accent2", "warn", "crit" }) do
+		if contrast(p[slot], p.bg) < 3 then
+			local base, t = p[slot], 0
+			repeat
+				t = t + 0.02
+				p[slot] = mix(base, towards, t)
+			until contrast(p[slot], p.bg) >= 3 or t >= 1
+			adjusted[#adjusted + 1] = slot
+		end
+	end
 	for slot, hex in pairs((config.overrides or {})[theme] or {}) do
 		p[slot] = hex:lower()
+		for i, s in ipairs(adjusted) do
+			if s == slot then
+				table.remove(adjusted, i)
+			end
+		end
 	end
-	return p
+	return p, adjusted
 end
 
 
@@ -302,7 +323,7 @@ if not (kitty.background and kitty.foreground and kitty.color1) then
 	os.exit(1)
 end
 
-local p = derive(kitty, theme)
+local p, adjusted = derive(kitty, theme)
 
 ---- Writing each app's colour file ----
 
@@ -448,6 +469,9 @@ os.execute("makoctl reload >/dev/null 2>&1")
 os.execute("pkill -SIGUSR2 -x waybar")
 os.execute("notify-send --app-name=theme 'Theme: " .. theme:gsub("'", "") .. "' >/dev/null 2>&1")
 print("Theme applied: " .. theme .. (light and " (light)" or " (dark)"))
+if #adjusted > 0 then
+	print(("Adjusted for contrast (%s): %s"):format(light and "darker" or "lighter", table.concat(adjusted, ", ")))
+end
 
 local installed = io.open("/usr/share/sddm/themes/dotfiles/theme.conf.user")
 if installed then
