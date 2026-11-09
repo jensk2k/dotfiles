@@ -32,16 +32,19 @@ jq_defs='
 	def key:
 		{ "left": "←", "right": "→", "up": "↑", "down": "↓",
 		  "mouse:272": "Left drag", "mouse:273": "Right drag",
-		  "slash": "?", "Escape": "Esc", "Print": "PrtSc",
+		  "slash": "/", "Escape": "Esc", "Print": "PrtSc",
+		  "period": ".", "comma": ",", "bracketleft": "[", "bracketright": "]",
+		  "semicolon": ";", "minus": "-", "equal": "=", "grave": "`",
 		  "XF86AudioRaiseVolume": "Vol +", "XF86AudioLowerVolume": "Vol −",
 		  "XF86AudioMute": "Mute", "XF86AudioMicMute": "Mic mute",
 		  "XF86MonBrightnessUp": "Bright +", "XF86MonBrightnessDown": "Bright −",
 		  "XF86AudioNext": "Next", "XF86AudioPrev": "Prev",
 		  "XF86AudioPlay": "Play", "XF86AudioPause": "Pause" }[.] // .;
-	# SHIFT + slash is "?": drop SHIFT there
+	# SHIFT + slash is "?": show it as "?" without SHIFT (plain slash stays "/")
 	def combo:
-		(if .key == "slash" then (.modmask - 1) else .modmask end) as $m
-		| { prefix: ($m | mods | join(" + ")), key: (.key | key) };
+		(.key == "slash" and .modmask % 2 == 1) as $question
+		| (if $question then .modmask - 1 else .modmask end) as $m
+		| { prefix: ($m | mods | join(" + ")), key: (if $question then "?" else (.key | key) end) };
 	def name: combo | (if .prefix == "" then "" else .prefix + " + " end) + .key;
 '
 
