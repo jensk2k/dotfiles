@@ -177,3 +177,15 @@ menu separator {
     margin: 4px 0;
     background: rgba(255, 255, 255, 0.12);
 }
+
+/* Privacy: red while the mic or screen sharing is in use (hidden otherwise) */
+#privacy {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @crit;
+    border-radius: 4px;
+}
+
+#privacy-item {
+    color: @bg;
+}

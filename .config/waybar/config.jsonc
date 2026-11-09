@@ -20,6 +20,7 @@
         "hyprland/window"
     ],
     "modules-right": [
+        "privacy",
         "hyprland/submap",
         //"keyboard-state",
         //"hyprland/language",
@@ -139,6 +140,16 @@
         "tooltip-format": "{player}: {artist} - {title}\n{album}"
     },
     // Stay awake: no dimming, locking or suspending (also SUPER + CTRL + I). Refreshed with signal 9
+    // Only visible while the microphone or screen sharing is in use
+    // (Waybar can't watch the camera)
+    "privacy": {
+        "icon-size": 14,
+        "icon-spacing": 6,
+        "modules": [
+            { "type": "screenshare", "tooltip": true },
+            { "type": "audio-in", "tooltip": true }
+        ]
+    },
     "custom/idle": {
         "exec": "~/.config/hypr/scripts/idle-inhibit.sh status",
         "return-type": "json",
