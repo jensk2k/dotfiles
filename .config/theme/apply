@@ -37,50 +37,7 @@ local function shell_quote(s)
 	return "'" .. s:gsub("'", "'\\''") .. "'"
 end
 
----- Choosing a theme ----
-
-local function all_themes()
-	local names, seen = {}, {}
-	for _, n in ipairs(config.favorites or {}) do
-		names[#names + 1], seen[n] = n, true
-	end
-	local zip = home .. "/.cache/kitty/kitty-themes.zip"
-	local rest = {}
-	for n in capture("unzip -p " .. shell_quote(zip) .. " '*/themes/*.conf' 2>/dev/null"):gmatch("## name: ([^\n]+)") do
-		if not seen[n] then
-			rest[#rest + 1], seen[n] = n, true
-		end
-	end
-	table.sort(rest, function(a, b) return a:lower() < b:lower() end)
-	for _, n in ipairs(rest) do
-		names[#names + 1] = n
-	end
-	return names
-end
-
-local theme = arg[1]
-if theme == "--pick" then
-	local list = os.tmpname()
-	write(list, table.concat(all_themes(), "\n") .. "\n")
-	theme = capture("fuzzel --dmenu --prompt 'Theme ❯ ' --placeholder " .. shell_quote(config.theme) .. " < " .. list):gsub("\n$", "")
-	os.remove(list)
-	if theme == "" then
-		os.exit(0)
-	end
-end
-theme = theme or config.theme
-
----- Reading the theme's colours from kitty ----
-
-local dump = capture("kitten themes --dump-theme " .. shell_quote(theme) .. " 2>/dev/null")
-local kitty = {}
-for key, hex in dump:gmatch("\n?([%w_]+)%s+#(%x%x%x%x%x%x)") do
-	kitty[key] = hex:lower()
-end
-if not (kitty.background and kitty.foreground and kitty.color1) then
-	io.stderr:write("apply: unknown kitty theme '" .. theme .. "' (see `kitten themes`)\n")
-	os.exit(1)
-end
+---- Colours ----
 
 local function rgb(hex)
 	return tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
@@ -108,25 +65,142 @@ local function contrast(a, b)
 	return (math.max(la, lb) + 0.05) / (math.min(la, lb) + 0.05)
 end
 
--- The normal or bright variant of an ANSI colour, whichever stands out more on bg
-local function pick(normal, bright)
-	local a, b = kitty["color" .. normal], kitty["color" .. bright] or kitty["color" .. normal]
-	return contrast(b, kitty.background) > contrast(a, kitty.background) and b or a
+-- The desktop palette for one theme, from its kitty colours (background,
+-- foreground, color0..15 as lowercase hex) plus any overrides in palette.lua.
+-- For the four colour slots, the normal or bright ANSI variant, whichever
+-- stands out more on bg. Used by both the picker swatches and apply itself.
+local function derive(kitty, theme)
+	local function pick(normal, bright)
+		local a, b = kitty["color" .. normal], kitty["color" .. bright] or kitty["color" .. normal]
+		return contrast(b, kitty.background) > contrast(a, kitty.background) and b or a
+	end
+	local p = {
+		bg = kitty.background,
+		fg = kitty.foreground,
+		surface = mix(kitty.background, kitty.foreground, 0.12),
+		dim = mix(kitty.background, kitty.foreground, 0.45),
+		accent = pick(4, 12),
+		accent2 = pick(2, 10),
+		warn = pick(3, 11),
+		crit = pick(1, 9),
+	}
+	for slot, hex in pairs((config.overrides or {})[theme] or {}) do
+		p[slot] = hex:lower()
+	end
+	return p
 end
 
-local p = {
-	bg = kitty.background,
-	fg = kitty.foreground,
-	surface = mix(kitty.background, kitty.foreground, 0.12),
-	dim = mix(kitty.background, kitty.foreground, 0.45),
-	accent = pick(4, 12),
-	accent2 = pick(2, 10),
-	warn = pick(3, 11),
-	crit = pick(1, 9),
-}
-for slot, hex in pairs((config.overrides or {})[theme] or {}) do
-	p[slot] = hex:lower()
+
+---- Choosing a theme ----
+
+-- Every theme's kitty colours from kitty's theme archive, in one pass:
+-- { ["Theme Name"] = { background = "282a36", color1 = "ff5555", ... }, ... }
+local function all_theme_colours()
+	local zip = home .. "/.cache/kitty/kitty-themes.zip"
+	local themes, current = {}, nil
+	-- `unzip -c` prints "inflating: <file>" before each file. Not every theme file
+	-- has a "## name:" line, so start fresh at each file, or an unnamed file's
+	-- colours would overwrite the previous named theme.
+	for line in capture("unzip -c " .. shell_quote(zip) .. " '*/themes/*.conf' 2>/dev/null"):gmatch("[^\r\n]+") do
+		local name = line:match("^##%s*name:%s*(.-)%s*$")
+		if line:match("^%s*inflating: ") then
+			current = nil
+		elseif name then
+			current = {}
+			themes[name] = current
+		elseif current then
+			local key, hex = line:match("^([%w_]+)%s+#(%x%x%x%x%x%x)")
+			if key then
+				current[key] = hex:lower()
+			end
+		end
+	end
+	return themes
 end
+
+-- An SVG icon of a palette, built for being read at a glance: a bg field
+-- with fg and dim "text" bars, over solid stripes of accent, accent2, warn
+-- and crit
+local function swatch(p)
+	return ([[<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<clipPath id="r"><rect width="48" height="48" rx="6"/></clipPath>
+<g clip-path="url(#r)">
+<rect width="48" height="48" fill="#%s"/>
+<rect x="6" y="7" width="36" height="5" rx="2.5" fill="#%s"/>
+<rect x="6" y="16" width="22" height="5" rx="2.5" fill="#%s"/>
+<rect x="0" y="28" width="12" height="20" fill="#%s"/>
+<rect x="12" y="28" width="12" height="20" fill="#%s"/>
+<rect x="24" y="28" width="12" height="20" fill="#%s"/>
+<rect x="36" y="28" width="12" height="20" fill="#%s"/>
+</g>
+<rect x="0.5" y="0.5" width="47" height="47" rx="6" fill="none" stroke="#%s"/>
+</svg>
+]]):format(p.bg, p.fg, p.dim, p.accent, p.accent2, p.warn, p.crit, p.dim)
+end
+
+-- Favourites first, then every other complete named theme alphabetically, each
+-- with its palette swatch (shown large: the picker uses tall lines) (cached in ~/.cache/theme-swatches) as the fuzzel icon
+local function picker_lines()
+	local colours = all_theme_colours()
+	local names, seen = {}, {}
+	for _, n in ipairs(config.favorites or {}) do
+		names[#names + 1], seen[n] = n, true
+	end
+	local rest = {}
+	for n in pairs(colours) do
+		if not seen[n] then
+			rest[#rest + 1] = n
+		end
+	end
+	table.sort(rest, function(a, b) return a:lower() < b:lower() end)
+	for _, n in ipairs(rest) do
+		names[#names + 1] = n
+	end
+
+	local cache = home .. "/.cache/theme-swatches"
+	os.execute("mkdir -p " .. shell_quote(cache))
+	local lines = {}
+	for _, n in ipairs(names) do
+		-- Themes without background/foreground/red can't be applied, so leave them out
+		local k = colours[n]
+		if k and k.background and k.foreground and k.color1 then
+			local icon = cache .. "/" .. n:gsub("[^%w]+", "_") .. ".svg"
+			write(icon, swatch(derive(k, n)))
+			lines[#lines + 1] = n .. "\0icon\x1f" .. icon
+		end
+	end
+	return lines
+end
+
+local theme = arg[1]
+if theme == "--pick" then
+	local list = os.tmpname()
+	write(list, table.concat(picker_lines(), "\n") .. "\n")
+	-- Tall lines for big swatches; opaque (current theme's bg) so nothing behind
+	-- the menu competes with the colours
+	local bg = read(dir .. "/generated/palette.lua"):match('bg = "(%x+)"') or "000000"
+	theme = capture("fuzzel --dmenu --prompt 'Theme ❯ ' --line-height 44 --lines 9 --width 44 --background-color "
+		.. bg .. "ff --placeholder " .. shell_quote(config.theme) .. " < " .. list):gsub("\n$", "")
+	os.remove(list)
+	if theme == "" then
+		os.exit(0)
+	end
+end
+theme = theme or config.theme
+
+---- Reading the theme's colours from kitty ----
+
+local dump = capture("kitten themes --dump-theme " .. shell_quote(theme) .. " 2>/dev/null")
+local kitty = {}
+for key, hex in dump:gmatch("\n?([%w_]+)%s+#(%x%x%x%x%x%x)") do
+	kitty[key] = hex:lower()
+end
+if not (kitty.background and kitty.foreground and kitty.color1) then
+	io.stderr:write("apply: unknown kitty theme '" .. theme .. "' (see `kitten themes`)\n")
+	os.exit(1)
+end
+
+local p = derive(kitty, theme)
 
 ---- Writing each app's colour file ----
 
