@@ -1,0 +1,42 @@
+#!/usr/bin/env lua
+-- ~/.config/theme/fetch-ports
+-- Downloads the pinned btop/bat/fzf ports listed in schemes.lua. Run once on a
+-- new machine, and again after bumping a pin. Files go to
+-- ~/.local/share/theme-ports/{btop,fzf} and ~/.config/bat/themes (not tracked);
+-- then bat's theme cache is rebuilt. apply falls back to terminal colours for
+-- any port that isn't downloaded.
+
+local home = os.getenv("HOME")
+local dir = home .. "/.config/theme"
+local schemes = dofile(dir .. "/schemes.lua")
+local ports = dofile(dir .. "/ports.lua")
+
+local function shell_quote(s)
+	return "'" .. s:gsub("'", "'\\''") .. "'"
+end
+
+local ok, failed = 0, {}
+for _, scheme in ipairs(schemes) do
+	for _, tool in ipairs({ "btop", "bat", "fzf" }) do
+		local port = scheme[tool]
+		if type(port) == "table" then
+			local dest = ports.path(tool, scheme)
+			os.execute("mkdir -p " .. shell_quote(dest:match("^(.*)/")))
+			local tmp = dest .. ".part"
+			if os.execute("curl -fsSL --max-time 30 -o " .. shell_quote(tmp) .. " " .. shell_quote(port.url)) then
+				os.rename(tmp, dest)
+				ok = ok + 1
+			else
+				os.remove(tmp)
+				failed[#failed + 1] = ("%s %s: %s"):format(scheme.name, tool, port.url)
+			end
+		end
+	end
+end
+
+os.execute("bat cache --build >/dev/null")
+print(("Fetched %d ports."):format(ok))
+if #failed > 0 then
+	io.stderr:write("Failed:\n  " .. table.concat(failed, "\n  ") .. "\n")
+	os.exit(1)
+end

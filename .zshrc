@@ -35,6 +35,9 @@ alias ls='ls --color=auto'
 alias la='ls -la --color=auto'
 alias grep='grep --color=auto'
 
+# Remote desktop
+alias rdp-desktop="xfreerdp3 /v:192.168.1.178 /u:jensk2k@gmail.com /dynamic-resolution /gfx /sound /clipboard /cert:tofu"
+
 # --- Autocompletion ---
 autoload -Uz compinit
 compinit
@@ -42,8 +45,9 @@ compinit
 # Enable interactive, menu-driven completion selection (arrow keys to pick)
 zstyle ':completion:*' menu select
 
-# fzf in the terminal's 16 colours, so it follows the desktop theme (~/.config/theme)
-export FZF_DEFAULT_OPTS="--color=16"
+# fzf colours: the desktop scheme's fzf port, written by ~/.config/theme/apply and
+# read on every fzf run, so open shells follow theme switches too
+export FZF_DEFAULT_OPTS_FILE="$HOME/.config/theme/generated/fzf.opts"
 
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
