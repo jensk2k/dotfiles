@@ -193,16 +193,63 @@ local function picker_lines()
 	return lines
 end
 
+-- Rewrite the favorites list in palette.lua (the rest of the file is kept)
+local function save_favorites()
+	local body = {}
+	for _, n in ipairs(config.favorites) do
+		body[#body + 1] = '\t\t"' .. n:gsub('[\\"]', "\\%0") .. '",'
+	end
+	local src = read(dir .. "/palette.lua")
+	src = src:gsub("\tfavorites = {.-\n\t},", function()
+		return "\tfavorites = {\n" .. table.concat(body, "\n") .. "\n\t},"
+	end, 1)
+	write(dir .. "/palette.lua", src)
+end
+
+local function toggle_favorite(name)
+	config.favorites = config.favorites or {}
+	for i, n in ipairs(config.favorites) do
+		if n == name then
+			table.remove(config.favorites, i)
+			return save_favorites()
+		end
+	end
+	table.insert(config.favorites, name)
+	save_favorites()
+end
+
 local theme = arg[1]
 if theme == "--pick" then
-	local list = os.tmpname()
-	write(list, table.concat(picker_lines(), "\n") .. "\n")
 	-- Tall lines for big swatches; opaque (current theme's bg) so nothing behind
 	-- the menu competes with the colours
 	local bg = read(dir .. "/generated/palette.lua"):match('bg = "(%x+)"') or "000000"
-	theme = capture("fuzzel --dmenu --prompt 'Theme ❯ ' --line-height 44 --lines 9 --width 44 --background-color "
-		.. bg .. "ff --placeholder " .. shell_quote(config.theme) .. " < " .. list):gsub("\n$", "")
-	theme = unmark(theme)
+	local list = os.tmpname()
+	local select = config.theme
+	-- Enter applies; Ctrl+S (fuzzel's custom-1, exit code 10; bound in
+	-- fuzzel-picker.ini) toggles the highlighted theme as a favourite and
+	-- reopens the picker on it
+	while true do
+		local lines, index = picker_lines(), 0
+		for i, line in ipairs(lines) do
+			if unmark(line:match("^[^%z]*")) == select then
+				index = i - 1
+			end
+		end
+		write(list, table.concat(lines, "\n") .. "\n")
+		local f = assert(io.popen("fuzzel --config " .. shell_quote(dir .. "/fuzzel-picker.ini")
+			.. " --dmenu --prompt 'Theme ❯ ' --placeholder 'Ctrl+S toggles ★'"
+			.. " --line-height 44 --lines 9 --width 44 --background-color " .. bg .. "ff"
+			.. " --select-index " .. index .. " < " .. list))
+		local out = f:read("a"):gsub("\n$", "")
+		local _, _, code = f:close()
+		theme = unmark(out)
+		if code == 10 and theme ~= "" then
+			toggle_favorite(theme)
+			select = theme
+		else
+			break
+		end
+	end
 	os.remove(list)
 	if theme == "" then
 		os.exit(0)
