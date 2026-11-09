@@ -140,6 +140,11 @@
         "tooltip-format": "{player}: {artist} - {title}\n{album}"
     },
     // Stay awake: no dimming, locking or suspending (also SUPER + CTRL + I). Refreshed with signal 9
+    // Shows the active Hyprland submap (e.g. "resize" after SUPER + R); hidden otherwise
+    "hyprland/submap": {
+        "format": "󰩨  {}",
+        "tooltip": false
+    },
     // Only visible while the microphone or screen sharing is in use
     // (Waybar can't watch the camera)
     "privacy": {

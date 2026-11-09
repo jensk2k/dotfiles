@@ -189,3 +189,13 @@ menu separator {
 #privacy-item {
     color: @bg;
 }
+
+/* Active submap (resize mode): accent pill, so the mode is hard to miss */
+#submap {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @accent;
+    color: @bg;
+    border-radius: 4px;
+    font-weight: bold;
+}

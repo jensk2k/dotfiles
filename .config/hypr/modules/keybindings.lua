@@ -109,6 +109,29 @@ each_direction(function(d, key)
 	)
 end)
 
+-- Resize mode (a submap): SUPER + R enters it; then plain h/j/k/l or arrows
+-- resize without holding modifiers, SHIFT for bigger steps. Esc, Enter or
+-- SUPER + R leave. Waybar's hyprland/submap module shows "resize" meanwhile.
+group("Resize mode")
+bind(mod .. " + R", hl.dsp.submap("resize"), "Enter resize mode")
+hl.define_submap("resize", function()
+	-- Normal steps first, then big ones, so the cheat sheet groups them by function
+	for _, big in ipairs({ false, true }) do
+		local scale, prefix, suffix = big and 3 or 1, big and "SHIFT + " or "", big and " (big steps)" or ""
+		each_direction(function(d, key)
+			bind(
+				prefix .. key,
+				hl.dsp.window.resize({ x = d.x * scale, y = d.y * scale, relative = true }),
+				"Resize " .. d.narrow .. suffix,
+				{ repeating = true }
+			)
+		end)
+	end
+	for _, key in ipairs({ "Escape", "Return", mod .. " + R" }) do
+		bind(key, hl.dsp.submap("reset"), "Leave resize mode")
+	end
+end)
+
 -- Workspaces: SUPER + 1..0 to switch, SUPER + SHIFT + 1..0 to send the window there
 group("Workspaces")
 for i = 1, 10 do
