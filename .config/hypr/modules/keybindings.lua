@@ -158,6 +158,7 @@ bind(mod .. " + mouse:273", hl.dsp.window.resize(), "Resize window", { mouse = t
 group("System")
 bind(mod .. " + CTRL + L", hl.dsp.exec_cmd("loginctl lock-session"), "Lock screen") -- hypridle runs hyprlock
 bind(mod .. " + CTRL + T", hl.dsp.exec_cmd("~/.config/theme/apply --pick"), "Colour theme picker")
+bind(mod .. " + CTRL + SHIFT + T", hl.dsp.exec_cmd("~/.config/theme/apply --previous"), "Previous colour theme")
 bind(mod .. " + CTRL + A", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.mixer wiremix"), "Audio mixer")
 bind(mod .. " + CTRL + B", hl.dsp.exec_cmd(scripts .. "bluetooth-menu.sh"), "Bluetooth devices")
 bind(mod .. " + CTRL + SHIFT + B", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.bluetooth bluetui"), "Bluetooth (bluetui)")

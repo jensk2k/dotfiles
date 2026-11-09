@@ -7,6 +7,7 @@
 --   apply           re-apply the theme set in palette.lua
 --   apply "Nord"    switch to another kitty theme (saved in palette.lua)
 --   apply --pick    choose a theme in fuzzel
+--   apply --previous  switch back to the theme before the last switch
 
 local home = os.getenv("HOME")
 local dir = home .. "/.config/theme"
@@ -35,6 +36,19 @@ end
 
 local function shell_quote(s)
 	return "'" .. s:gsub("'", "'\\''") .. "'"
+end
+
+-- The theme active before the last switch, for --previous and the picker's
+-- top line. Session history, so it lives in ~/.local/state, not in the repo.
+local previous_file = home .. "/.local/state/theme/previous"
+local function previous_theme()
+	local f = io.open(previous_file)
+	if not f then
+		return nil
+	end
+	local name = f:read("l")
+	f:close()
+	return name ~= "" and name or nil
 end
 
 ---- Colours ----
@@ -140,12 +154,12 @@ end
 
 -- Line prefixes in the picker: the current theme, favourites, everything else
 -- (same width, so names line up). unmark() strips them from fuzzel's answer.
-local markers = { current = "✓ ", favorite = "★ " }
+local markers = { current = "✓ ", favorite = "★ ", previous = "↶ " }
 local function marker(kind)
 	return markers[kind] or "  "
 end
 local function unmark(line)
-	for _, m in ipairs({ markers.current, markers.favorite, "  " }) do
+	for _, m in ipairs({ markers.current, markers.favorite, markers.previous, "  " }) do
 		if line:sub(1, #m) == m then
 			return line:sub(#m + 1)
 		end
@@ -179,16 +193,22 @@ local function picker_lines()
 
 	local cache = home .. "/.cache/theme-swatches"
 	os.execute("mkdir -p " .. shell_quote(cache))
-	local lines = {}
+	local lines, icons = {}, {}
 	for _, n in ipairs(names) do
 		-- Themes without background/foreground/red can't be applied, so leave them out
 		local k = colours[n]
 		if k and k.background and k.foreground and k.color1 then
 			local icon = cache .. "/" .. n:gsub("[^%w]+", "_") .. ".svg"
 			write(icon, swatch(derive(k, n)))
+			icons[n] = icon
 			lines[#lines + 1] = marker(n == config.theme and "current" or favorite[n] and "favorite")
 				.. n .. "\0icon\x1f" .. icon
 		end
+	end
+	-- The theme before the last switch goes first, so going back is one Enter
+	local previous = previous_theme()
+	if previous and previous ~= config.theme and icons[previous] then
+		table.insert(lines, 1, markers.previous .. previous .. "\0icon\x1f" .. icons[previous])
 	end
 	return lines
 end
@@ -219,7 +239,14 @@ local function toggle_favorite(name)
 end
 
 local theme = arg[1]
-if theme == "--pick" then
+if theme == "--previous" then
+	theme = previous_theme()
+	if not theme then
+		io.stderr:write("apply: no previous theme yet\n")
+		os.execute("notify-send --app-name=theme 'No previous theme yet' >/dev/null 2>&1")
+		os.exit(1)
+	end
+elseif theme == "--pick" then
 	-- Tall lines for big swatches; opaque (current theme's bg) so nothing behind
 	-- the menu competes with the colours
 	local bg = read(dir .. "/generated/palette.lua"):match('bg = "(%x+)"') or "000000"
@@ -372,8 +399,10 @@ json = json:gsub([["weeks": "<span color='#%x+'>]], [["weeks": "<span color='#]]
 json = json:gsub([["today": "<span color='#%x+'>]], [["today": "<span color='#]] .. p.accent2 .. [['>]])
 write(cfg, json)
 
--- Remember the theme for the next plain `apply`
+-- Remember the theme for the next plain `apply`, and the one we left for --previous
 if theme ~= config.theme then
+	os.execute("mkdir -p " .. shell_quote(home .. "/.local/state/theme"))
+	write(previous_file, config.theme .. "\n")
 	local src = read(dir .. "/palette.lua")
 	src = src:gsub('\ttheme = "[^"\n]*"', function() return '\ttheme = "' .. theme .. '"' end, 1)
 	write(dir .. "/palette.lua", src)
