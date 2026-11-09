@@ -118,14 +118,25 @@ local function derive(kitty, theme)
 		warn = pick(3, 11),
 		crit = pick(1, 9),
 	}
-	-- Contrast safeguard: an accent slot that's too faint on bg (under 3:1, the
-	-- usual minimum for borders and icons) is darkened on light themes or
-	-- lightened on dark ones, in small steps, until it passes. The hue stays.
-	-- Returns the adjusted slot names; overrides below are never adjusted.
+	-- The family's official palette (its Waybar port), when downloaded: each slot
+	-- takes the colour schemes.lua's map names. Used exactly as published.
+	local entry = scheme_by_name[theme]
+	local official = entry and entry.palette and ports.palette_colors(ports.path("palette", entry))
+	if official then
+		for slot, name in pairs(entry.palette.map) do
+			p[slot] = official[name] or p[slot]
+		end
+	end
+
+	-- Contrast safeguard, for derived palettes only: an accent slot that's too
+	-- faint on bg (under 3:1, the usual minimum for borders and icons) is
+	-- darkened on light themes or lightened on dark ones, in small steps, until
+	-- it passes. The hue stays. Returns the adjusted slot names; overrides below
+	-- are never adjusted.
 	local adjusted = {}
 	local towards = luminance(p.bg) > luminance(p.fg) and "000000" or "ffffff"
 	for _, slot in ipairs({ "accent", "accent2", "warn", "crit" }) do
-		if contrast(p[slot], p.bg) < 3 then
+		if not official and contrast(p[slot], p.bg) < 3 then
 			local base, t = p[slot], 0
 			repeat
 				t = t + 0.02
@@ -142,7 +153,7 @@ local function derive(kitty, theme)
 			end
 		end
 	end
-	return p, adjusted
+	return p, adjusted, official ~= nil
 end
 
 
@@ -350,7 +361,32 @@ if not (kitty.background and kitty.foreground and kitty.color1) then
 	os.exit(1)
 end
 
-local p, adjusted = derive(kitty, theme)
+local p, adjusted, official_palette = derive(kitty, theme)
+local missing_palette = type(scheme.palette) == "table" and not official_palette
+
+-- A scheme's port for one app: a built-in theme name (string) or the path of a
+-- fetched port (see schemes.lua). nil when there's none, or when the port
+-- isn't downloaded yet (then noted in `missing`); callers fall back.
+local function exists(path)
+	local f = io.open(path)
+	if f then
+		f:close()
+	end
+	return f ~= nil
+end
+local missing = {}
+local function port(tool)
+	local entry = scheme[tool]
+	if type(entry) == "table" then
+		local path = ports.path(tool, scheme)
+		if exists(path) then
+			return path
+		end
+		missing[#missing + 1] = tool
+	end
+	return type(entry) == "string" and entry or nil
+end
+
 
 ---- Writing each app's colour file ----
 
@@ -389,6 +425,18 @@ write(gen .. "waybar.css", ([[
 ]]):format(header, css_rgba(p.bg, config.bg_alpha), css_rgba(p.surface, config.bg_alpha),
 	p.fg, p.dim, p.accent, p.accent2, p.warn, p.crit))
 
+-- mako and fuzzel: the family's own colour config when it has one (used as-is),
+-- otherwise our colour choices from the slots
+local function official_config(tool)
+	local path = port(tool)
+	return path and ("# %s\n# The colour scheme's official %s colours: %s\n\n%s"):format(
+		header, tool, scheme[tool].url, read(path))
+end
+
+local mako_port = official_config("mako")
+if mako_port then
+	write(gen .. "mako.conf", mako_port)
+else
 write(gen .. "mako.conf", ([[
 # %s
 background-color=#%s%s
@@ -402,7 +450,12 @@ border-color=#%s
 [urgency=high]
 border-color=#%s
 ]]):format(header, p.bg, a, p.fg, p.accent, p.surface, p.dim, p.crit))
+end
 
+local fuzzel_port = official_config("fuzzel")
+if fuzzel_port then
+	write(gen .. "fuzzel.ini", fuzzel_port)
+else
 write(gen .. "fuzzel.ini", ([[
 # %s
 [colors]
@@ -419,6 +472,7 @@ counter=%sff
 border=%sff
 ]]):format(header, p.bg, a, p.fg, p.accent, p.fg, p.dim, p.accent2, p.surface,
 	p.fg, p.accent2, p.dim, p.accent))
+end
 
 write(gen .. "hyprlock.conf", ([[
 # %s
@@ -496,29 +550,6 @@ end
 
 ---- Terminal apps: the scheme's own btop, bat and fzf themes ----
 
--- Each is a built-in theme name or a fetched port (see schemes.lua); without
--- one, or when the port isn't downloaded yet, the app uses the terminal's
--- colours (from the scheme's kitty port)
-local function exists(path)
-	local f = io.open(path)
-	if f then
-		f:close()
-	end
-	return f ~= nil
-end
-local missing = {}
-local function port(tool)
-	local entry = scheme[tool]
-	if type(entry) == "table" then
-		local path = ports.path(tool, scheme)
-		if exists(path) then
-			return path
-		end
-		missing[#missing + 1] = tool
-	end
-	return type(entry) == "string" and entry or nil
-end
-
 -- btop reads color_theme (a built-in name or a theme file) when it starts
 local btop_conf = home .. "/.config/btop/btop.conf"
 if exists(btop_conf) then
@@ -552,8 +583,13 @@ os.execute("makoctl reload >/dev/null 2>&1")
 os.execute("pkill -SIGUSR2 -x waybar")
 os.execute("notify-send --app-name=theme 'Theme: " .. theme:gsub("'", "") .. "' >/dev/null 2>&1")
 print("Theme applied: " .. theme .. (light and " (light)" or " (dark)"))
+print("Official: kitty, Neovim" .. (official_palette and ", palette (our UI)" or "")
+	.. (mako_port and ", mako" or "") .. (fuzzel_port and ", fuzzel" or ""))
+if missing_palette then
+	table.insert(missing, 1, "palette")
+end
 if #missing > 0 then
-	print("Not downloaded yet (using terminal colours): " .. table.concat(missing, ", ") .. "; run ~/.config/theme/fetch-ports")
+	print("Not downloaded yet, using fallbacks: " .. table.concat(missing, ", ") .. "; run ~/.config/theme/fetch-ports")
 end
 if #adjusted > 0 then
 	print(("Adjusted for contrast (%s): %s"):format(light and "darker" or "lighter", table.concat(adjusted, ", ")))

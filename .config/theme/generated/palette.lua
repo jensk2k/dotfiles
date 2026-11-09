@@ -2,10 +2,10 @@
 -- Theme: Catppuccin Mocha
 return {
 	bg = "1e1e2e",
-	surface = "333446",
+	surface = "313244",
 	fg = "cdd6f4",
-	dim = "6d7187",
-	accent = "89b4fa",
+	dim = "7f849c",
+	accent = "cba6f7",
 	accent2 = "a6e3a1",
 	warn = "f9e2af",
 	crit = "f38ba8",

@@ -11,14 +11,18 @@ local function slug(name)
 	return (name:lower():gsub("é", "e"):gsub("[^%w]+", "-"))
 end
 
--- Local file for a scheme's fetched port of `tool` (btop, bat or fzf)
+-- Every kind of fetched port, in schemes.lua's field names
+M.tools = { "btop", "bat", "fzf", "palette", "mako", "fuzzel" }
+
+-- Local file for a scheme's fetched port of `tool` (one of M.tools)
 function M.path(tool, scheme)
 	local url = scheme[tool].url
 	if tool == "bat" then
 		-- bat only reads themes from its config dir; the theme name is the file name
 		return home .. "/.config/bat/themes/" .. url:match("([^/]+)$")
 	end
-	return ("%s/%s/%s.%s"):format(share, tool, slug(scheme.name), url:match("%.(%w+)$"))
+	-- mako ports have no extension
+	return ("%s/%s/%s.%s"):format(share, tool, slug(scheme.name), url:match("/[^/.]+%.(%w+)$") or "conf")
 end
 
 -- bat's name for a fetched .tmTheme (the file name without the extension)
@@ -43,6 +47,20 @@ function M.fzf_colors(file)
 		end
 	end
 	return #out > 0 and table.concat(out, " ") or nil
+end
+
+-- A palette port's named colours, { name = "rrggbb" }: CSS "@define-color name #hex"
+function M.palette_colors(file)
+	local f = io.open(file)
+	if not f then
+		return nil
+	end
+	local colors = {}
+	for name, hex in f:read("a"):gmatch("@define%-color%s+([%w_-]+)%s+#(%x%x%x%x%x%x)") do
+		colors[name] = hex:lower()
+	end
+	f:close()
+	return next(colors) and colors or nil
 end
 
 return M

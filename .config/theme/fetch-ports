@@ -1,10 +1,10 @@
 #!/usr/bin/env lua
 -- ~/.config/theme/fetch-ports
--- Downloads the pinned btop/bat/fzf ports listed in schemes.lua. Run once on a
--- new machine, and again after bumping a pin. Files go to
--- ~/.local/share/theme-ports/{btop,fzf} and ~/.config/bat/themes (not tracked);
--- then bat's theme cache is rebuilt. apply falls back to terminal colours for
--- any port that isn't downloaded.
+-- Downloads the pinned ports listed in schemes.lua (btop, bat, fzf, palette,
+-- mako, fuzzel). Run once on a new machine, and again after bumping a pin.
+-- Files go to ~/.local/share/theme-ports/<tool> and ~/.config/bat/themes (not tracked);
+-- then bat's theme cache is rebuilt. apply falls back (terminal colours, or
+-- the kitty-derived palette) for any port that isn't downloaded.
 
 local home = os.getenv("HOME")
 local dir = home .. "/.config/theme"
@@ -17,7 +17,7 @@ end
 
 local ok, failed = 0, {}
 for _, scheme in ipairs(schemes) do
-	for _, tool in ipairs({ "btop", "bat", "fzf" }) do
+	for _, tool in ipairs(ports.tools) do
 		local port = scheme[tool]
 		if type(port) == "table" then
 			local dest = ports.path(tool, scheme)
