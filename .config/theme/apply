@@ -138,6 +138,21 @@ local function swatch(p)
 ]]):format(p.bg, p.fg, p.dim, p.accent, p.accent2, p.warn, p.crit, p.dim)
 end
 
+-- Line prefixes in the picker: the current theme, favourites, everything else
+-- (same width, so names line up). unmark() strips them from fuzzel's answer.
+local markers = { current = "✓ ", favorite = "★ " }
+local function marker(kind)
+	return markers[kind] or "  "
+end
+local function unmark(line)
+	for _, m in ipairs({ markers.current, markers.favorite, "  " }) do
+		if line:sub(1, #m) == m then
+			return line:sub(#m + 1)
+		end
+	end
+	return line
+end
+
 -- Favourites first, then every other complete named theme alphabetically, each
 -- with its palette swatch (shown large: the picker uses tall lines) (cached in ~/.cache/theme-swatches) as the fuzzel icon
 local function picker_lines()
@@ -157,6 +172,11 @@ local function picker_lines()
 		names[#names + 1] = n
 	end
 
+	local favorite = {}
+	for _, n in ipairs(config.favorites or {}) do
+		favorite[n] = true
+	end
+
 	local cache = home .. "/.cache/theme-swatches"
 	os.execute("mkdir -p " .. shell_quote(cache))
 	local lines = {}
@@ -166,7 +186,8 @@ local function picker_lines()
 		if k and k.background and k.foreground and k.color1 then
 			local icon = cache .. "/" .. n:gsub("[^%w]+", "_") .. ".svg"
 			write(icon, swatch(derive(k, n)))
-			lines[#lines + 1] = n .. "\0icon\x1f" .. icon
+			lines[#lines + 1] = marker(n == config.theme and "current" or favorite[n] and "favorite")
+				.. n .. "\0icon\x1f" .. icon
 		end
 	end
 	return lines
@@ -181,6 +202,7 @@ if theme == "--pick" then
 	local bg = read(dir .. "/generated/palette.lua"):match('bg = "(%x+)"') or "000000"
 	theme = capture("fuzzel --dmenu --prompt 'Theme ❯ ' --line-height 44 --lines 9 --width 44 --background-color "
 		.. bg .. "ff --placeholder " .. shell_quote(config.theme) .. " < " .. list):gsub("\n$", "")
+	theme = unmark(theme)
 	os.remove(list)
 	if theme == "" then
 		os.exit(0)
@@ -310,6 +332,31 @@ if theme ~= config.theme then
 	write(dir .. "/palette.lua", src)
 end
 
+---- Light or dark, for everything outside the palette ----
+
+-- A theme is light when its background is lighter than its text. GTK apps,
+-- the icon theme, and (through xdg-desktop-portal) browsers and websites
+-- follow the system colour-scheme setting, so switch it to match.
+local light = luminance(p.bg) > luminance(p.fg)
+local scheme = light and "prefer-light" or "prefer-dark"
+local gtk_theme = light and "Adwaita" or "Adwaita-dark"
+local icons = light and "Papirus" or "Papirus-Dark"
+for key, value in pairs({ ["color-scheme"] = scheme, ["gtk-theme"] = gtk_theme, ["icon-theme"] = icons }) do
+	os.execute("gsettings set org.gnome.desktop.interface " .. key .. " " .. value .. " 2>/dev/null")
+end
+-- Older GTK 3 apps read settings.ini instead (written by nwg-look; not tracked)
+for _, ini in ipairs({ "/.config/gtk-3.0/settings.ini", "/.config/gtk-4.0/settings.ini" }) do
+	local f = io.open(home .. ini)
+	if f then
+		local text = f:read("a")
+		f:close()
+		text = text:gsub("gtk%-theme%-name=[^\n]*", "gtk-theme-name=" .. gtk_theme)
+			:gsub("gtk%-icon%-theme%-name=[^\n]*", "gtk-icon-theme-name=" .. icons)
+			:gsub("gtk%-application%-prefer%-dark%-theme=[^\n]*", "gtk-application-prefer-dark-theme=" .. (light and 0 or 1))
+		write(home .. ini, text)
+	end
+end
+
 ---- Reloading ----
 
 -- kitty: writes ~/.config/kitty/current-theme.conf and recolours open windows
@@ -318,7 +365,7 @@ os.execute("hyprctl reload >/dev/null 2>&1")
 os.execute("makoctl reload >/dev/null 2>&1")
 os.execute("pkill -SIGUSR2 -x waybar")
 os.execute("notify-send --app-name=theme 'Theme: " .. theme:gsub("'", "") .. "' >/dev/null 2>&1")
-print("Theme applied: " .. theme)
+print("Theme applied: " .. theme .. (light and " (light)" or " (dark)"))
 
 local installed = io.open("/usr/share/sddm/themes/dotfiles/theme.conf.user")
 if installed then

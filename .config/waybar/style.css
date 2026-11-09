@@ -1,4 +1,5 @@
 /* Colours (@bg, @accent, ...) come from ~/.config/theme/palette.lua (run ~/.config/theme/apply) */
+/* Tints (hover, separators) are alpha(@fg, ...), so they work on light themes too */
 @import "../theme/generated/waybar.css";
 
 * {
@@ -10,7 +11,7 @@
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 14px;
     background: @bg;
-    /*color: @fg;*/
+    color: @fg; /* default text colour; modules override it where they mean something */
 }
 
 tooltip {
@@ -37,7 +38,7 @@ tooltip {
 }
 
 #workspaces button:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: alpha(@fg, 0.08);
     box-shadow: none;
     text-shadow: none;
 }
@@ -85,13 +86,13 @@ tooltip {
 #mpris:hover,
 #energy:hover,
 #custom-power:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: alpha(@fg, 0.08);
 }
 
 /* Tray sits apart from the status icons, with a thin divider */
 /*#tray {
     margin-right: 4px;
-    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-right: 1px solid alpha(@fg, 0.15);
 }*/
 
 #clock {
@@ -175,7 +176,7 @@ menuitem:hover {
 
 menu separator {
     margin: 4px 0;
-    background: rgba(255, 255, 255, 0.12);
+    background: alpha(@fg, 0.15);
 }
 
 /* Privacy: red while the mic or screen sharing is in use (hidden otherwise) */

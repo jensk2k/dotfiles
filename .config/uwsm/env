@@ -2,5 +2,6 @@
 export XCURSOR_SIZE=24
 export HYPRCURSOR_SIZE=24
 export XCURSOR_THEME=Adwaita
-export GTK_THEME=Adwaita:dark
+# No GTK_THEME here: it would force one theme on all GTK apps. ~/.config/theme/apply
+# sets light or dark (gsettings color-scheme, gtk-theme, icon-theme) per colour theme.
 export QT_QPA_PLATFORMTHEME=qt6ct
