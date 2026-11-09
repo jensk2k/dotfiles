@@ -147,6 +147,7 @@ bind(mod .. " + CTRL + Tab", hl.dsp.focus({ workspace = "previous" }), "Back to 
 
 -- Scratchpad: a hidden workspace you can pop over anything
 bind(mod .. " + S", hl.dsp.workspace.toggle_special("scratch"), "Show / hide scratchpad")
+bind(mod .. " + grave", hl.dsp.workspace.toggle_special("dropdown"), "Drop-down terminal")
 bind(mod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:scratch" }), "Send window to scratchpad")
 
 -- Mouse: SUPER + left-drag moves, SUPER + right-drag resizes

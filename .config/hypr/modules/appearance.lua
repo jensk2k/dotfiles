@@ -62,3 +62,12 @@ hl.config({
 	--	vrr = 1,
 	--	},
 })
+
+-- Special workspaces (drop-down terminal, scratchpad) slide down from the top
+-- like a Quake console. "top" forces the side (Hyprland 0.57 accepts a side for
+-- workspace slides too, though the wiki only documents it for windows)
+hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
+-- The side is where the slide happens on the way in; for the way out it's the
+-- opposite edge, so "bottom" makes a hidden workspace go back up.
+hl.animation({ leaf = "specialWorkspaceIn", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slidevert top" })
+hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slidevert bottom" })
