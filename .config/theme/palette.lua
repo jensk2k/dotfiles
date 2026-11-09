@@ -2,8 +2,9 @@
 -- Picks the colour scheme for the whole desktop. After editing, run
 -- ~/.config/theme/apply (or `apply "Theme Name"`, or `apply --pick` / SUPER + CTRL + T).
 --
--- `theme` is any kitty theme name (`kitten themes` lists them). apply reads its
--- colours from kitty and derives the palette slots:
+-- `theme` is one of the schemes in schemes.lua (the curated list; kitty and
+-- Neovim use each scheme's official ports). For our own UI, apply reads the
+-- scheme's kitty colours and derives the palette slots:
 --   bg, fg            background and text
 --   surface, dim      blends of bg and fg: raised elements, secondary text/borders
 --   accent, accent2   the theme's blue and green
@@ -16,12 +17,12 @@ return {
 	-- Opacity of bg and surface in Waybar, mako and fuzzel
 	bg_alpha = 0.92,
 
-	-- Shown first in the picker, before all other kitty themes
+	-- Shown first in the picker, before the rest of schemes.lua
 	favorites = {
 		"Dracula",
 		"Gruvbox Dark",
-		"Catppuccin-Mocha",
-		"Catppuccin-Latte",
+		"Catppuccin Mocha",
+		"Catppuccin Latte",
 		"Nord",
 		"Tokyo Night",
 		"Rosé Pine",

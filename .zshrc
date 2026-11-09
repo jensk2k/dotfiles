@@ -42,6 +42,9 @@ compinit
 # Enable interactive, menu-driven completion selection (arrow keys to pick)
 zstyle ':completion:*' menu select
 
+# fzf in the terminal's 16 colours, so it follows the desktop theme (~/.config/theme)
+export FZF_DEFAULT_OPTS="--color=16"
+
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 source /usr/share/fzf/key-bindings.zsh
