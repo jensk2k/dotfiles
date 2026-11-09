@@ -199,16 +199,21 @@ local function picker_lines()
 		local k = colours[n]
 		if k and k.background and k.foreground and k.color1 then
 			local icon = cache .. "/" .. n:gsub("[^%w]+", "_") .. ".svg"
-			write(icon, swatch(derive(k, n)))
+			local pal = derive(k, n)
+			write(icon, swatch(pal))
 			icons[n] = icon
+			-- Hidden second column, searched but not shown (--match-nth), so typing
+			-- "light", "dark" or "fav" filters the list
+			local tags = (luminance(pal.bg) > luminance(pal.fg) and "light" or "dark")
+				.. (favorite[n] and " favorite" or "")
 			lines[#lines + 1] = marker(n == config.theme and "current" or favorite[n] and "favorite")
-				.. n .. "\0icon\x1f" .. icon
+				.. n .. "\t" .. tags .. "\0icon\x1f" .. icon
 		end
 	end
 	-- The theme before the last switch goes first, so going back is one Enter
 	local previous = previous_theme()
 	if previous and previous ~= config.theme and icons[previous] then
-		table.insert(lines, 1, markers.previous .. previous .. "\0icon\x1f" .. icons[previous])
+		table.insert(lines, 1, markers.previous .. previous .. "\tprevious\0icon\x1f" .. icons[previous])
 	end
 	return lines
 end
@@ -258,13 +263,14 @@ elseif theme == "--pick" then
 	while true do
 		local lines, index = picker_lines(), 0
 		for i, line in ipairs(lines) do
-			if unmark(line:match("^[^%z]*")) == select then
+			if unmark(line:match("^[^%z\t]*")) == select then
 				index = i - 1
 			end
 		end
 		write(list, table.concat(lines, "\n") .. "\n")
 		local f = assert(io.popen("fuzzel --config " .. shell_quote(dir .. "/fuzzel-picker.ini")
-			.. " --dmenu --prompt 'Theme ❯ ' --placeholder 'Ctrl+S toggles ★'"
+			.. " --dmenu --prompt 'Theme ❯ ' --placeholder 'Ctrl+S toggles ★ · type light, dark or fav'"
+			.. " --with-nth=1 --accept-nth=1 --match-nth='{1} {2}'"
 			.. " --line-height 44 --lines 9 --width 44 --background-color " .. bg .. "ff"
 			.. " --select-index " .. index .. " < " .. list))
 		local out = f:read("a"):gsub("\n$", "")
