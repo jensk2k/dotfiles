@@ -85,3 +85,9 @@ hl.window_rule({
 	size = { "monitor_w - 20", "monitor_h * 0.45" },
 	move = { 10, 44 },
 })
+
+-- Window swallowing: a GUI app started from a kitty window (mpv, an image
+-- viewer, satty) takes the terminal's place while it runs; the terminal comes
+-- back when the app closes. Only plain kitty windows swallow (not the bar
+-- popups, drop-down or cheat sheet, which have their own classes).
+hl.config({ misc = { enable_swallow = true, swallow_regex = "^(kitty)$" } })
