@@ -10,6 +10,8 @@
 #   --print        plain text to stdout
 #   --check        report binds without a description or section, and keys
 #                  bound twice; exits 1 if there are any
+#   --free         list unused letters, digits and punctuation keys for each
+#                  modifier combination in the scheme, for picking new binds
 
 self=$(readlink -f "$0")
 
@@ -56,6 +58,23 @@ if [[ $1 == --check ]]; then
 		exit 1
 	fi
 	echo "keybindings ok: $(hyprctl -j binds | jq length) binds"
+	exit
+fi
+
+if [[ $1 == --free ]]; then
+	# modmask bits: SHIFT 1, CTRL 4, ALT 8, SUPER 64
+	hyprctl -j binds | jq -r '
+		[ .[] | "\(.modmask)|\(.key | ascii_upcase)" ] as $taken
+		| ("ABCDEFGHIJKLMNOPQRSTUVWXYZ" | split("")) as $letters
+		| ("1234567890" | split("")) as $digits
+		| ["comma", "period", "slash", "semicolon", "apostrophe", "minus", "equal",
+		   "bracketleft", "bracketright", "backslash", "grave", "Return", "BackSpace", "Delete"] as $punct
+		| [ [64, "SUPER"], [65, "SUPER + SHIFT"], [72, "SUPER + ALT"],
+		    [68, "SUPER + CTRL"], [69, "SUPER + CTRL + SHIFT"] ][]
+		| .[0] as $m
+		| def free(keys): [ keys[] | select(("\($m)|\(ascii_upcase)") as $k | $taken | index($k) | not) ];
+		  "\(.[1])\n  letters: \(free($letters) | join(" "))\n  digits:  \(free($digits) | join(" ") | if . == "" then "-" else . end)\n  other:   \(free($punct) | join(" "))\n"
+	'
 	exit
 fi
 
