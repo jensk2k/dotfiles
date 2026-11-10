@@ -95,8 +95,8 @@
             "mode": "month",
             "weeks-pos": "left",
             "format": {
-                "weeks": "<span color='#7f849c'>W{:%V}</span>",
-                "today": "<span color='#a6e3a1'><b>{}</b></span>"
+                "weeks": "<span color='#6272a4'>W{:%V}</span>",
+                "today": "<span color='#50fa7b'><b>{}</b></span>"
             }
         }
     },
