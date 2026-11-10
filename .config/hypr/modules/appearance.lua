@@ -21,6 +21,8 @@ hl.config({
 		},
 
 		resize_on_border = true, -- drag borders/gaps with the mouse to resize
+		-- Off: on this Intel iGPU (i915) the kernel rejects async (tearing) page
+		-- flips, so an `immediate` window froze on its last frame (Nov 2026).
 		allow_tearing = false,
 		layout = "dwindle",
 	},

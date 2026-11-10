@@ -19,6 +19,14 @@ hl.config({
 	},
 })
 
+-- Gaming mouse: flat curve (no acceleration), so pointer travel depends only on
+-- distance, not speed. The touchpad and trackpoint keep libinput's adaptive curve.
+-- Device names from `hyprctl devices`.
+hl.device({
+	name = "--hitscan-hyperlight-1",
+	accel_profile = "flat",
+})
+
 -- Touchpad gestures. Three fingers: left/right switches workspaces (follows
 -- the fingers), down pulls in the drop-down terminal, up puts away whatever
 -- special workspace is showing (drop-down or scratchpad). Four fingers: up
