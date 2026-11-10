@@ -287,3 +287,28 @@ menu separator {
     color: @fg;
     font-weight: normal;
 }
+
+/* Failed units: red pill (hidden while nothing has failed) */
+#systemd-failed-units {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @crit;
+    color: @bg;
+    border-radius: 4px;
+}
+
+/* Pending updates (hidden at zero) */
+#custom-updates {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @bg2;
+    color: @accent;
+    border-radius: 4px;
+}
+
+#custom-updates:hover,
+#hardware #cpu:hover,
+#hardware #memory:hover,
+#hardware #temperature:hover {
+    background: alpha(@fg, 0.08);
+}

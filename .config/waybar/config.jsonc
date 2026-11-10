@@ -19,6 +19,8 @@
     "modules-right": [
         "privacy",
         "hyprland/submap",
+        "systemd-failed-units",
+        "custom/updates",
         "group/hardware",
         "tray",
         "group/datetime"
@@ -99,11 +101,31 @@
         }
     },
 
+    // Failed system and user units: a red pill, hidden while nothing has failed.
+    // Click: list them in a bar popup
+    "systemd-failed-units": {
+        "format": "{nr_failed} 󰀦",
+        "hide-on-ok": true,
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.failed sh -c 'systemctl --failed; echo; systemctl --user --failed; echo; echo Press Enter to close; read -r _'"
+    },
+    // Pending updates (repos + AUR), checked hourly, hidden at zero. Click (or
+    // SUPER + CTRL + U): run the update in a bar popup; it refreshes this with signal 10
+    "custom/updates": {
+        "exec": "~/.config/waybar/scripts/updates.sh",
+        "return-type": "json",
+        "interval": 3600,
+        "signal": 10,
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.update ~/.config/hypr/scripts/system-update.sh"
+    },
+
+    // CPU, memory, temperature: click for btop (also SUPER + CTRL + M)
     "cpu": {
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.btop btop",
         "format": "{usage}% ",
         "tooltip": false
     },
     "memory": {
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.btop btop",
         "format": "{}% \ue266",
         "tooltip": true,
 	    "tooltip-format": "{used:0.1f}GB/{total:0.1f}G"
@@ -112,6 +134,7 @@
         // "thermal-zone": 2,
         // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
         "critical-threshold": 80,
+        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.btop btop",
         // "format-critical": "{temperatureC}°C {icon}",
         "format": "{temperatureC}°C {icon}",
         "format-icons": ["", "", ""]

@@ -167,6 +167,8 @@ bind(mod .. " + CTRL + W", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.net
 bind(mod .. " + CTRL + C", hl.dsp.exec_cmd(scripts .. "calendar.sh"), "Calendar (this month)")
 bind(mod .. " + CTRL + P", hl.dsp.exec_cmd(scripts .. "power-profile.sh"), "Cycle power profile")
 bind(mod .. " + CTRL + I", hl.dsp.exec_cmd(scripts .. "idle-inhibit.sh toggle"), "Stay awake on / off")
+bind(mod .. " + CTRL + U", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.update " .. scripts .. "system-update.sh"), "System update")
+bind(mod .. " + CTRL + M", hl.dsp.exec_cmd(scripts .. "toggle-popup.sh popup.btop btop"), "System monitor (btop)")
 
 -- Session
 group("Session")
