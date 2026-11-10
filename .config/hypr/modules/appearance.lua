@@ -36,6 +36,16 @@ hl.config({
 		dim_inactive = true,
 		dim_strength = 0.2,
 
+		-- Wobbly windows while they're moved or resized (new in Hyprland 0.57).
+		-- Spring settings: higher intensity = more deformation, lower damping =
+		-- longer wobble, lower stiffness = softer, slower spring
+		wobble = {
+			enabled = true,
+			intensity = 0.2,
+			stiffness = 450, -- default 200 felt sluggish
+			damping = 22, -- default 12; raised with the stiffness so it still settles fast
+		},
+
 		shadow = {
 			enabled = true,
 			range = 4,
@@ -87,7 +97,7 @@ hl.config({
 		},
 	},
 
-	-- Built-in default animations; see the wiki's Animations page to tune them.
+	-- Animation curves and speeds: see the presets below
 	animations = {
 		enabled = true,
 	},
@@ -103,10 +113,56 @@ hl.config({
 	--	},
 })
 
+-- Animations: three presets to compare; pick one with `preset`, then
+-- `hyprctl reload`. Speed is in tenths of a second (3 = 0.3 s). Workspaces
+-- slide sideways, matching the three-finger swipe.
+--   snappy   fast (0.25 s); windows pop in from 75% and overshoot a little;
+--            workspaces and bar popups slide with a small bounce
+--   smooth   as fast as snappy (0.25 s), starts fast and glides to a stop, no bounce
+--   minimal  very short: windows mostly fade, workspaces slide (0.2 s)
+local preset = "minimal"
+
+hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
+hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
+hl.curve("overshoot", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.15 } } }) -- ~5% past the target
+
+local presets = {
+	snappy = {
+		windowsIn = { 2.5, "overshoot", "popin 75%" },
+		windowsOut = { 1.5, "linear", "popin 75%" },
+		windowsMove = { 2.5, "overshoot" },
+		fade = { 2, "easeOutQuint" },
+		border = { 4, "easeOutQuint" },
+		layers = { 2, "overshoot", "slide" },
+		workspaces = { 2.5, "overshoot", "slide" },
+	},
+	smooth = {
+		windowsIn = { 2.5, "easeOutQuint", "popin 75%" },
+		windowsOut = { 1.5, "linear", "popin 75%" },
+		windowsMove = { 2.5, "easeOutQuint" },
+		fade = { 2, "easeOutQuint" },
+		border = { 4, "easeOutQuint" },
+		layers = { 2, "easeOutQuint", "slide" },
+		workspaces = { 2.5, "easeOutQuint", "slide" },
+	},
+	minimal = {
+		windowsIn = { 1.5, "easeOutQuint", "popin 95%" },
+		windowsOut = { 1, "linear", "popin 95%" },
+		windowsMove = { 1.5, "easeOutQuint" },
+		fade = { 1.5, "easeOutQuint" },
+		border = { 2, "easeOutQuint" },
+		layers = { 1.5, "easeOutQuint", "fade" },
+		workspaces = { 2, "easeOutQuint", "slide" },
+	},
+}
+
+for leaf, a in pairs(presets[preset]) do
+	hl.animation({ leaf = leaf, enabled = true, speed = a[1], bezier = a[2], style = a[3] })
+end
+
 -- Special workspaces (drop-down terminal, scratchpad) slide down from the top
 -- like a Quake console. "top" forces the side (Hyprland 0.57 accepts a side for
 -- workspace slides too, though the wiki only documents it for windows)
-hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
 -- The side is where the slide happens on the way in; for the way out it's the
 -- opposite edge, so "bottom" makes a hidden workspace go back up.
 hl.animation({ leaf = "specialWorkspaceIn", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slidevert top" })
