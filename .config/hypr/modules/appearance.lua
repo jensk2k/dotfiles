@@ -51,6 +51,42 @@ hl.config({
 		},
 	},
 
+	-- Groups (tabbed windows, SUPER + G): borders like normal windows, tabs as
+	-- filled pills in the theme colours (active = accent, the rest = surface);
+	-- locked groups use warn
+	group = {
+		col = {
+			border_active = { colors = { "rgba(" .. p.accent .. "ee)", "rgba(" .. p.accent2 .. "ee)" }, angle = 45 },
+			border_inactive = "rgba(" .. p.dim .. "aa)",
+			border_locked_active = "rgba(" .. p.warn .. "ee)",
+			border_locked_inactive = "rgba(" .. p.warn .. "88)",
+		},
+		groupbar = {
+			font_family = "JetBrainsMono Nerd Font",
+			font_size = 15, -- pixels (Hyprland), not points: 15 px sits between mako and kitty
+			font_weight_active = "bold",
+			font_weight_inactive = "normal",
+			height = 24, -- room for the titles
+			gradients = true, -- filled tabs instead of a thin underline
+			indicator_height = 0,
+			rounding = 6,
+			gradient_rounding = 6,
+			gaps_in = 4,
+			gaps_out = 2,
+			render_titles = true,
+			col = {
+				active = "rgba(" .. p.accent .. "ff)",
+				inactive = "rgba(" .. p.surface .. "ff)",
+				locked_active = "rgba(" .. p.warn .. "ff)",
+				locked_inactive = "rgba(" .. p.surface .. "ff)",
+			},
+			text_color = "rgba(" .. p.bg .. "ff)",
+			text_color_inactive = "rgba(" .. p.fg .. "ff)",
+			text_color_locked_active = "rgba(" .. p.bg .. "ff)",
+			text_color_locked_inactive = "rgba(" .. p.fg .. "ff)",
+		},
+	},
+
 	-- Built-in default animations; see the wiki's Animations page to tune them.
 	animations = {
 		enabled = true,
