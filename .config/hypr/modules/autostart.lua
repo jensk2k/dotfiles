@@ -9,7 +9,8 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("uwsm app -- hypridle")
 	hl.exec_cmd("uwsm app -- hyprsunset")
 	hl.exec_cmd("uwsm app -- nm-applet")
-	hl.exec_cmd("uwsm app -- firewall-applet")
+	-- firewall-applet and Bitwarden start from XDG autostart (uwsm runs
+	-- /etc/xdg/autostart and ~/.config/autostart), so not here: they would run twice
 	--hl.exec_cmd("uwsm app -- blueman-applet")
 	hl.exec_cmd("uwsm app -- signal-desktop")
 	-- Clipboard history: store everything copied (text and images)

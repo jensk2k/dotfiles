@@ -532,7 +532,9 @@ return { colorscheme = %q, background = %q }
 ]]):format(header, scheme.nvim.colorscheme, scheme.nvim.background or (light and "light" or "dark")))
 local color_scheme = light and "prefer-light" or "prefer-dark"
 local gtk_theme = light and "Adwaita" or "Adwaita-dark"
-local icons = light and "Papirus" or "Papirus-Dark"
+-- Papirus-Light, not plain Papirus: plain Papirus keeps light panel icons
+-- (tray, symbolic), meant for a dark bar, which vanish on a light one
+local icons = light and "Papirus-Light" or "Papirus-Dark"
 for key, value in pairs({ ["color-scheme"] = color_scheme, ["gtk-theme"] = gtk_theme, ["icon-theme"] = icons }) do
 	os.execute("gsettings set org.gnome.desktop.interface " .. key .. " " .. value .. " 2>/dev/null")
 end
