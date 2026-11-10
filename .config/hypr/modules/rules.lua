@@ -102,3 +102,10 @@ hl.window_rule({
 -- back when the app closes. Only plain kitty windows swallow (not the bar
 -- popups, drop-down or cheat sheet, which have their own classes).
 hl.config({ misc = { enable_swallow = true, swallow_regex = "^(kitty)$" } })
+
+-- Never dim video, even while another window has focus (decoration.dim_inactive)
+hl.window_rule({
+	name = "no-dim-video",
+	match = { class = "^mpv$" },
+	no_dim = true,
+})

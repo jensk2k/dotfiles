@@ -32,6 +32,10 @@ hl.config({
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
 
+		-- Dim unfocused windows, so the focused one stands out (mpv is exempt, see rules.lua)
+		dim_inactive = true,
+		dim_strength = 0.2,
+
 		shadow = {
 			enabled = true,
 			range = 4,
