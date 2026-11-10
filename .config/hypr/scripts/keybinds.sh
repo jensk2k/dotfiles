@@ -96,6 +96,8 @@ entries() {
 		| (.keys | if length > 4 then "\(.[0])…\(.[-1])" else join("/") end) as $keys
 		| "\(.section)\t\((if .prefix == "" then "" else .prefix + " + " end) + $keys)\t\(.description)"
 	'
+	# Touchpad gestures, from the "-- Gesture: 3 ↓ | description" comments in input.lua
+	sed -n 's/^-- Gesture: \([0-9]*\) \(.*[^ ]\) *| *\(.*\)/Gestures\t\1 fingers \2\t\3/p' ~/.config/hypr/modules/input.lua
 }
 
 # The modifier scheme, read from the header comment of keybindings.lua (the one
