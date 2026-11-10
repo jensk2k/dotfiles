@@ -200,3 +200,90 @@ menu separator {
     border-radius: 4px;
     font-weight: bold;
 }
+
+/* Volume and brightness sliders: a thin accent bar in a pill, no knob.
+   GTK sliders need an explicit trough size or they render too small. */
+#pulseaudio-slider,
+#backlight-slider {
+    margin: 2px 0px;
+    padding: 0px 10px;
+    background-color: @bg2;
+    border-radius: 4px;
+}
+
+#pulseaudio-slider slider,
+#backlight-slider slider {
+    min-height: 0;
+    min-width: 0;
+    opacity: 0;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
+#pulseaudio-slider trough,
+#backlight-slider trough {
+    min-height: 6px;
+    min-width: 70px;
+    border-radius: 3px;
+    background-color: alpha(@fg, 0.15);
+}
+
+#pulseaudio-slider highlight,
+#backlight-slider highlight {
+    min-width: 6px;
+    border-radius: 3px;
+    background-color: @accent;
+}
+
+#pulseaudio-slider.muted highlight {
+    background-color: @dim;
+}
+
+/* Grouped pills (volume, brightness, toggles): the group draws the pill, its
+   modules sit inside it without their own background */
+#volume,
+#brightness,
+#toggles,
+#hardware {
+    margin: 2px 0px;
+    padding: 0px 4px;
+    background-color: @bg2;
+    border-radius: 4px;
+}
+
+#volume #wireplumber,
+#volume #pulseaudio-slider,
+#brightness #backlight,
+#brightness #backlight-slider,
+#toggles #custom-idle,
+#toggles #custom-notifications,
+#toggles #power-profiles-daemon,
+#toggles #bluetooth,
+#hardware #cpu,
+#hardware #memory,
+#hardware #temperature,
+#hardware #battery {
+    margin: 0px;
+    padding: 0px 6px;
+    background-color: transparent;
+}
+
+/* Clock drawer: one pill; the time stays bold green, the date is plain */
+#datetime {
+    margin: 2px 0px;
+    padding: 0px 4px;
+    background-color: @bg2;
+    border-radius: 4px;
+}
+
+#datetime #clock {
+    margin: 0px;
+    padding: 0px 6px;
+    background-color: transparent;
+}
+
+#datetime #clock.date {
+    color: @fg;
+    font-weight: normal;
+}

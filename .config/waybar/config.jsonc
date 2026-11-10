@@ -6,14 +6,11 @@
     "spacing": 4,
 
     "modules-left": [
-        "custom/power", 
+        "custom/power",
         "hyprland/workspaces",
-        "custom/idle",
-        "custom/notifications",
-        "power-profiles-daemon",
-        "wireplumber",
-        "backlight",
-        "bluetooth",
+        "group/toggles",
+        "group/volume",
+        "group/brightness",
         "mpris"
     ],
     "modules-center": [
@@ -22,14 +19,9 @@
     "modules-right": [
         "privacy",
         "hyprland/submap",
-        //"keyboard-state",
-        //"hyprland/language",
-        "cpu",
-        "memory",
-        "temperature",
-        "battery",
+        "group/hardware",
         "tray",
-        "clock"
+        "group/datetime"
     ],
 
     "hyprland/workspaces": {
@@ -72,21 +64,36 @@
 
     // Title of the focused window
     "hyprland/window": {
-        "max-length": 60,
+        "max-length": 40,
         "separate-outputs": true
     },
 
     // 24-hour clock; hover for a calendar with week numbers, click for the full date
-    "clock": {
-        "format": "{:%A %d.%m.%Y  %H:%M}",
+    // Clock: weekday, short date and time show; the week number slides out (to
+    // the left) on hover; the calendar tooltip is on it. SUPER + CTRL + C shows the month.
+    "group/datetime": {
+        "orientation": "horizontal",
+        "drawer": { "transition-duration": 300, "transition-left-to-right": false },
+        "modules": ["clock#time", "clock#date"]
+    },
+    "clock#date": {
+        "format": "W{:%V}",
+        "tooltip": false
+    },
+    "clock#time": {
+        // The date in normal weight, so the (bold) time stands out
+        // Waybar's clock allows one placeholder, whose spec must start with %, so
+        // the <span> opens before it and closes inside it
+        "format": "<span weight='normal'>{:%a %d.%m</span>  %H:%M}",
         //"format-alt": "{:%H:%M}",
         "tooltip-format": "<tt>{calendar}</tt>",
         //"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        // ISO week numbers (%V), as used in Denmark and by cal and the date above
         "calendar": {
             "mode": "month",
             "weeks-pos": "left",
             "format": {
-                "weeks": "<span color='#7f849c'>W{}</span>",
+                "weeks": "<span color='#7f849c'>W{:%V}</span>",
                 "today": "<span color='#a6e3a1'><b>{}</b></span>"
             }
         }
@@ -111,8 +118,10 @@
     },
     "backlight": {
         // "device": "acpi_video1",
-        "format": "{percent}% {icon}",
-        "format-icons": ["", "", "", "", "", "", "", "", ""]
+        // Icon only: the slider shows the level, the tooltip the exact value
+        "format": "{icon}",
+        "tooltip-format": "Brightness {percent}%",
+        "format-icons": ["󰃞", "󰃟", "󰃠"]
     },
     // Icons of apps that put themselves in the tray (Steam, Discord, ...).
     // nm-applet lives here too: Wi-Fi status and its connection menu.
@@ -124,10 +133,10 @@
     // Now playing from any MPRIS player (browser, mpv, Spotify, ...).
     // Hidden when nothing is playing. Click: play/pause, middle: previous, right: next
     "mpris": {
-        "format": "{player_icon} {dynamic}",
-        "format-paused": "{status_icon} {dynamic}",
-        "dynamic-order": ["artist", "title"],
-        "dynamic-len": 40,
+        // Title only (browsers can report the artist as "null"); artist in the tooltip
+        "format": "{player_icon} {title}",
+        "format-paused": "{status_icon} {title}",
+        "title-len": 30,
         "player-icons": {
             "default": "󰎆",
             "brave": "󰖟",
@@ -169,13 +178,45 @@
         "signal": 8,
         "on-click": "makoctl mode -t do-not-disturb; pkill -RTMIN+8 waybar"
     },
+    // Volume and brightness: the icon shows, its slider slides out on hover.
+    // Fine as mouse-only extras because both levels are on keys too.
+    "group/volume": {
+        "orientation": "horizontal",
+        "drawer": { "transition-duration": 300, "transition-left-to-right": true },
+        "modules": ["wireplumber", "pulseaudio/slider"]
+    },
+    "group/brightness": {
+        "orientation": "horizontal",
+        "drawer": { "transition-duration": 300, "transition-left-to-right": true },
+        "modules": ["backlight", "backlight/slider"]
+    },
+    // Plain groups (no drawer): one pill each on the bar
+    "group/hardware": { "orientation": "horizontal", "modules": ["cpu", "memory", "temperature", "battery"] },
+    "group/toggles": {
+        "orientation": "horizontal",
+        "modules": ["custom/idle", "custom/notifications", "power-profiles-daemon", "bluetooth"]
+    },
+
+    // Sliders next to the volume and brightness icons (both also have keys)
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+    },
+    // Never below 5%, so a stray drag can't black out the screen
+    "backlight/slider": {
+        "min": 5,
+        "max": 100,
+        "orientation": "horizontal"
+    },
     // Volume: scroll to change
     "wireplumber": {
-        "format": "{volume}% {icon}",
-        "format-muted": "󰝟 ",
+        // Icon only: the slider shows the level, the tooltip the exact value
+        "format": "{icon}",
+        "format-muted": "󰝟",
         "format-icons": ["", " ", " "],
         "scroll-step": 5,
-        "tooltip-format": "{node_name}",
+        "tooltip-format": "{volume}% · {node_name}",
 //        "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.mixer wiremix",
         //"on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
     },
@@ -194,12 +235,13 @@
     },
 
     "battery": {
+        // Nerd Font battery glyphs (the emoji 🗲 came from the emoji font and looked bigger)
         "states": { "warning": 25, "critical": 10 },
         "format": "{capacity}% {icon}",
         "format-alt": "{time} {icon}",
-        "format-charging": "{capacity}% 🗲",
-        "format-plugged": "{capacity}% ",
-        "format-icons": ["", "", "", "", ""],
+        "format-charging": "{capacity}% 󰂄",
+        "format-plugged": "{capacity}% 󰚥",
+        "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
         "tooltip-format": "{timeTo}",
         //"on-click": "case $(powerprofilesctl get) in power-saver) n=balanced ;; balanced) n=performance ;; *) n=power-saver ;; esac; powerprofilesctl set $n || powerprofilesctl set power-saver"
     },
