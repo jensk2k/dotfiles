@@ -76,8 +76,13 @@ hl.window_rule({
 
 -- Drop-down terminal (SUPER + `): a hidden special workspace that starts kitty
 -- the first time it's opened; the terminal keeps running while hidden. Shown as
--- a wide panel under the bar.
-hl.workspace_rule({ workspace = "special:dropdown", on_created_empty = "uwsm app -- kitty --class dropdown -o background_opacity=1" })
+-- a wide panel under the bar. (Hyprland 0.57 deprecates the on_created_empty
+-- workspace rule in favour of this event handler.)
+hl.on("workspace.created", function(ws)
+	if ws.name == "special:dropdown" and ws.is_empty then
+		hl.exec_cmd("uwsm app -- kitty --class dropdown -o background_opacity=1")
+	end
+end)
 hl.window_rule({
 	name = "dropdown-terminal",
 	match = { class = "^dropdown$" },
