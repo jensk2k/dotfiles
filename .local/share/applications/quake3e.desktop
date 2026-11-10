@@ -1,0 +1,12 @@
+[Desktop Entry]
+# Overrides /usr/share/applications/quake3e.desktop: starts the game through
+# ~/.config/hypr/scripts/game.sh (performance power profile while it runs).
+Name=Quake3e
+GenericName=Quake III Arena
+Comment=Improved Quake III Arena Engine
+Exec=/home/jk/.config/hypr/scripts/game.sh /usr/bin/quake3e
+Icon=/usr/share/pixmaps/quake3e.png
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game;

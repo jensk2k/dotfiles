@@ -45,6 +45,7 @@
             "class<mpv>": "󰐹",
             "class<com.gabm.satty>": "󰏫",
             "class<steam>": "󰓓",
+            "class<quake3e.*>": "󰓾", // Quake 3: target
             "class<org.pulseaudio.pavucontrol>": "󰕾",
             "class<blueman-.*>": "󰂯",
             "class<nm-connection-editor>": "󰖩",
