@@ -172,6 +172,18 @@ group("Session")
 bind(mod .. " + Escape", hl.dsp.exec_cmd(scripts .. "power-menu.sh"), "Power menu")
 bind(mod .. " + SHIFT + Escape", hl.dsp.exec_cmd("uwsm stop"), "Log out")
 
+-- Screen zoom: magnifies the whole screen around the pointer (cursor.zoom_factor)
+group("Zoom")
+local function zoom(factor)
+	return function()
+		local z = factor and math.max(1, math.min(hl.get_config("cursor.zoom_factor") * factor, 10)) or 1
+		hl.config({ cursor = { zoom_factor = z } })
+	end
+end
+bind(mod .. " + equal", zoom(1.5), "Zoom in", { repeating = true })
+bind(mod .. " + minus", zoom(1 / 1.5), "Zoom out", { repeating = true })
+bind(mod .. " + SHIFT + minus", zoom(nil), "Reset zoom")
+
 -- Screenshots: saved to ~/Pictures/Screenshots and copied; click the notification to annotate
 group("Screenshots")
 local screenshot = scripts .. "screenshot.sh"
