@@ -196,6 +196,13 @@ bind(mod .. " + Print", hl.dsp.exec_cmd(screenshot .. " window"), "Active window
 bind("CTRL + Print", hl.dsp.exec_cmd(screenshot .. " region --edit"), "Region, then annotate")
 bind(mod .. " + I", hl.dsp.exec_cmd("hyprpicker -a -n -f hex"), "Pick a colour (copies hex)") -- I: the eyedropper key in GIMP, Krita, Figma
 
+-- Claude Code speech (~/Projects/tts): same letters as its Ctrl+Alt hotkeys on Windows
+group("Speech")
+local tts = "~/.claude/tts/bin/claude-tts hotkey "
+bind(mod .. " + ALT + R", hl.dsp.exec_cmd(tts .. "read-selection"), "Read the selected text aloud")
+bind(mod .. " + ALT + B", hl.dsp.exec_cmd(tts .. "read-back"), "Read back Claude's last reply")
+bind(mod .. " + ALT + S", hl.dsp.exec_cmd(tts .. "stop"), "Stop speaking")
+
 -- Volume, brightness and media keys (work on the lock screen too)
 group("Media keys")
 bind(
