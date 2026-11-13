@@ -86,6 +86,7 @@ qt5-wayland
 qt6-virtualkeyboard
 qt6-wayland
 qt6ct
+reflector
 remmina
 ripgrep
 rsync
