@@ -198,10 +198,12 @@ bind(mod .. " + I", hl.dsp.exec_cmd("hyprpicker -a -n -f hex"), "Pick a colour (
 
 -- Claude Code speech (~/Projects/tts): same letters as its Ctrl+Alt hotkeys on Windows
 group("Speech")
+-- Outside the SUPER scheme on purpose: the same keys as claude-tts on Windows,
+-- where Win+letter can't be registered.
 local tts = "~/.claude/tts/bin/claude-tts hotkey "
-bind(mod .. " + ALT + R", hl.dsp.exec_cmd(tts .. "read-selection"), "Read the selected text aloud")
-bind(mod .. " + ALT + B", hl.dsp.exec_cmd(tts .. "read-back"), "Read back Claude's last reply")
-bind(mod .. " + ALT + S", hl.dsp.exec_cmd(tts .. "stop"), "Stop speaking")
+bind("CTRL + ALT + SHIFT + R", hl.dsp.exec_cmd(tts .. "read-selection"), "Read the selected text aloud")
+bind("CTRL + ALT + SHIFT + B", hl.dsp.exec_cmd(tts .. "read-back"), "Read back Claude's last reply")
+bind("CTRL + ALT + SHIFT + S", hl.dsp.exec_cmd(tts .. "stop"), "Stop speaking")
 
 -- Volume, brightness and media keys (work on the lock screen too)
 group("Media keys")
