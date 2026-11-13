@@ -95,6 +95,7 @@ satty
 sddm
 signal-desktop
 slurp
+smartmontools
 sof-firmware
 starship
 steam

@@ -76,7 +76,6 @@ The user's goals for this setup, in no particular order. Notes are starting poin
 - **System basics** (found in a survey on 2026-11-13; most need sudo, so the user runs or approves them):
   - Backups: deferred (2026-11-14) until there's data worth keeping that isn't in a git repo; everything in `$HOME` is replaceable or in git (push the repos, e.g. `skidbladnir`'s unpushed commits), and the SSH key can be regenerated (GitHub + NAS). When needed, restic with a user timer.
   - **Investigate a reinstall on btrfs + LUKS**: root (`nvme0n1p2`) is plain ext4, so no snapshots (snapper and btrfs-progs were removed 2026-11-14, they couldn't do anything on ext4) and no encryption. Both need a reinstall, so look into doing them together: btrfs subvolumes (`@`, `@home`, …) with snapper + snap-pac (a snapshot before every pacman transaction) and boot entries for snapshots, on LUKS (with fingerprint/TPM unlock options). The package list (`~/.config/pkglist/`) and the dotfiles make a reinstall cheap; push all git repos first.
-  - Disk health: `smartmontools` (`smartctl -a /dev/nvme0`).
   - Optional: `thermald` (Intel CPU), `cups` only if printing is needed.
 - **Security and secrets**:
   - **Fingerprint unlock**: a right index finger is enrolled with fprintd but nothing uses it. hyprlock: `auth { fingerprint { enabled = true } }`; also consider `pam_fprintd` for sudo/polkit.
