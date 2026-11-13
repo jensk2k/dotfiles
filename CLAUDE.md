@@ -74,9 +74,7 @@ The user's goals for this setup, in no particular order. Notes are starting poin
 - **Prep the dotfiles for a desktop port**: a second machine (desktop) using the same repo. Find what's laptop-specific (battery/backlight/power-profile scripts and Waybar modules, touchpad gestures, the Hitscan mouse `hl.device`, i915 notes, fingerprint) and make it conditional on the machine.
 - **System basics** (found in a survey on 2026-11-13; most need sudo, so the user runs or approves them):
   - Backups: deferred (2026-11-14) until there's data worth keeping that isn't in a git repo; everything in `$HOME` is replaceable or in git (push the repos, e.g. `skidbladnir`'s unpushed commits), and the SSH key can be regenerated (GitHub + NAS). When needed, restic with a user timer. `snapper` is installed but useless, because root is ext4 (no btrfs): remove it.
-  - No swap (15 GiB RAM): `zram-generator` plus `/etc/systemd/zram-generator.conf`. Hibernation would need a swap file.
   - Root (`nvme0n1p2`) isn't encrypted (no LUKS): needs a reinstall or an offline conversion; push all git repos first.
-  - `/boot` is world-readable (bootctl warns at every boot): add `fmask=0077,dmask=0077` to its line in `/etc/fstab`.
   - Disk health: `smartmontools` (`smartctl -a /dev/nvme0`).
   - Mirrorlist is old (2026-09-01, 425 servers): `reflector` plus `reflector.timer`.
   - Orphaned `-debug` packages from yay builds: `pacman -Rns $(pacman -Qdtq)`, and `!debug` in makepkg.conf `OPTIONS`.

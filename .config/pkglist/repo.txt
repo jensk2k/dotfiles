@@ -125,6 +125,7 @@ yt-dlp
 zathura
 zathura-pdf-mupdf
 zoxide
+zram-generator
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
