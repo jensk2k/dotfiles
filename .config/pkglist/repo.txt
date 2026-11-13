@@ -94,7 +94,6 @@ satty
 sddm
 signal-desktop
 slurp
-snapper
 sof-firmware
 starship
 steam
