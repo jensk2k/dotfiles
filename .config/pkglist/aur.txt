@@ -1,0 +1,6 @@
+bitwarden-bin
+brave-bin
+evhz-git
+pocket-casts-linux
+quake3e-git
+yay

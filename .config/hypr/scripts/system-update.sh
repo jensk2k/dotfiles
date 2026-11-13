@@ -2,11 +2,13 @@
 # ~/.config/hypr/scripts/system-update.sh
 # Runs the system update (yay: repos, then AUR) in a bar popup
 # (SUPER + CTRL + U, or a click on the update count), then refreshes the
-# Waybar count (signal 10) and waits for a key so the output can be read.
+# Waybar count (signal 10), saves the package list (pkglist.sh) and waits
+# for a key so the output can be read.
 
 yay -Syu
 status=$?
 pkill -RTMIN+10 waybar
+"$(dirname "$0")/pkglist.sh"
 echo
 if [ "$status" -eq 0 ]; then
 	echo "Done. Press a key to close."
