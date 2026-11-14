@@ -3,7 +3,7 @@
 --
 -- Switches the desktop to one of the colour schemes in schemes.lua: kitty and
 -- Neovim use the scheme's official ports; our own UI (Waybar, mako, fuzzel,
--- hyprlock, SDDM, Hyprland borders) gets a palette derived from its kitty
+-- hyprlock, Hyprland borders) gets a palette derived from its kitty
 -- colours, written to generated/. Then everything is reloaded.
 --   apply           re-apply the scheme set in palette.lua
 --   apply "Nord"    switch to another scheme from schemes.lua (saved in palette.lua)
@@ -484,23 +484,6 @@ $warn = rgba(%see)
 $crit = rgba(%see)
 ]]):format(header, p.bg, p.fg, p.accent, p.accent2, p.warn, p.crit))
 
--- SDDM login theme. SDDM can't read $HOME, so the colours are also copied to
--- the installed theme, whose theme.conf.user `sudo ~/.config/sddm/install`
--- makes ours (see the end).
-local sddm_colors = home .. "/.config/sddm/theme/theme.conf.user"
-write(sddm_colors, ([[
-; %s
-[General]
-Bg="#%s"
-Surface="#%s"
-Fg="#%s"
-Dim="#%s"
-Accent="#%s"
-Accent2="#%s"
-Warn="#%s"
-Crit="#%s"
-]]):format(header, p.bg, p.surface, p.fg, p.dim, p.accent, p.accent2, p.warn, p.crit))
-
 -- Waybar's config.jsonc can't include files, so patch the two calendar colours in place
 local cfg = home .. "/.config/waybar/config.jsonc"
 local json = read(cfg)
@@ -596,20 +579,4 @@ if #missing > 0 then
 end
 if #adjusted > 0 then
 	print(("Adjusted for contrast (%s): %s"):format(light and "darker" or "lighter", table.concat(adjusted, ", ")))
-end
-
-local installed_path = "/usr/share/sddm/themes/dotfiles/theme.conf.user"
-local installed = io.open(installed_path)
-if installed then
-	local same = installed:read("a") == read(sddm_colors)
-	installed:close()
-	if not same then
-		local f = io.open(installed_path, "w")
-		if f then
-			f:write(read(sddm_colors))
-			f:close()
-		else
-			print("Login screen still has the old colours: sudo ~/.config/sddm/install (once; later switches update it themselves)")
-		end
-	end
 end

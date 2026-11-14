@@ -1,6 +1,6 @@
 [SddmGreeterTheme]
 Name=dotfiles
-Description=Minimal login screen matching the desktop theme
+Description=Login window inside the x643mr5dqs7h1 wallpaper (retro blue terminal look)
 Type=sddm-theme
 Version=1.0
 MainScript=Main.qml

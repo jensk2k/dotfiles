@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # ~/.config/sddm/install
 # Installs the login screen: sddm.conf to /etc/sddm.conf and the theme to
-# /usr/share/sddm/themes/dotfiles, with the current hyprpaper wallpaper.
-# Re-run after changing the theme or the wallpaper here:
+# /usr/share/sddm/themes/dotfiles (with its own background.png; the login
+# screen has fixed colours and doesn't follow the desktop theme).
+# Re-run after changing the theme:
 #   sudo ~/.config/sddm/install
-# The installed colours file (theme.conf.user) belongs to you, so
-# ~/.config/theme/apply updates it on every theme switch without sudo.
 # The first run moves the old SDDM setup to /var/backups/sddm-<date>/.
 set -euo pipefail
 
@@ -15,8 +14,6 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 src=$(dirname "$(readlink -f "$0")")
-user=${SUDO_USER:-$(stat -c %U "$src")}
-home=$(getent passwd "$user" | cut -d: -f6)
 dest=/usr/share/sddm/themes/dotfiles
 backup=/var/backups/sddm-$(date +%Y%m%d-%H%M%S)
 
@@ -45,18 +42,6 @@ install -Dm644 "$src/sddm.conf" /etc/sddm.conf
 
 rm -rf "$dest"
 install -d "$dest"
-install -m644 "$src"/theme/metadata.desktop "$src"/theme/Main.qml "$src"/theme/theme.conf "$src"/theme/theme.conf.user "$dest"/
-# Colours only (key=value, no code): writable by the user so theme switches
-# reach the login screen without sudo
-chown "$user" "$dest/theme.conf.user"
-
-# Wallpaper: the first path in hyprpaper.conf
-wall=$(sed -n 's/^[[:space:]]*path[[:space:]]*=[[:space:]]*//p' "$home/.config/hypr/hyprpaper.conf" | head -n 1)
-wall=${wall/#\~/$home}
-if [[ -f $wall ]]; then
-	install -m644 "$wall" "$dest/background"
-else
-	echo "Wallpaper '$wall' not found; the login screen will use a plain background." >&2
-fi
+install -m644 "$src"/theme/metadata.desktop "$src"/theme/Main.qml "$src"/theme/theme.conf "$src"/theme/background.png "$dest"/
 
 echo "Login screen installed. It shows the next time SDDM starts (log out, or reboot)."
