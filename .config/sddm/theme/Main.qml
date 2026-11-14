@@ -34,9 +34,11 @@ Rectangle {
 	// Typing intro: characters of the prompt shown so far
 	property int typed: 0
 	readonly property int typeTotal: line1.text.length + line2.text.length + line3.text.length
-	readonly property bool typedOut: typed >= typeTotal
+	// Failsafe: everything shows after 3 s even if the intro breaks
+	property bool introOver: false
+	readonly property bool typedOut: introOver || typed >= typeTotal
 	// Characters [start, start + len) of the intro that are visible
-	function reveal(start, len) { return Math.max(0, Math.min(len, typed - start)) }
+	function reveal(start, len) { return introOver ? len : Math.max(0, Math.min(len, typed - start)) }
 	// Clock decoding: ticks left (counting down) and a counter that makes
 	// the scrambled text re-roll on every tick
 	property int scramble: 0
@@ -385,13 +387,20 @@ Rectangle {
 		onTriggered: root.dots++
 	}
 
-	// Typing intro, about 28 ms per character; then the clock decodes
-	NumberAnimation on typed {
-		id: intro
-		from: 0
-		to: root.typeTotal
-		duration: root.typeTotal * 28
-		onFinished: root.scramble = 12
+	// Typing intro, about 28 ms per character; then the clock decodes.
+	// A timer, not an animation to a fixed count: the prompt gets longer
+	// when SDDM fills in the user and hostname after start-up.
+	Timer {
+		interval: 28
+		running: !root.typedOut
+		repeat: true
+		onTriggered: root.typed++
+	}
+	onTypedOutChanged: if (typedOut) { introOver = true; scramble = 12 }
+	Timer {
+		interval: 3000
+		running: true
+		onTriggered: root.introOver = true
 	}
 	// Decode the clock on every minute change (and when the intro ends)
 	onTimeTextChanged: scramble = 12
