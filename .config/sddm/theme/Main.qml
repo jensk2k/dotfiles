@@ -6,6 +6,10 @@
 //   - left: the prompt, floating in the sky the wizard points at
 //   - right: the time as big ASCII-art digits (hours above minutes) drawn
 //     into the dotted lower right of the Mona Lisa, the date in its bottom row
+// Animations, all in the same retro spirit: the prompt types itself out
+// when the screen appears, the clock decodes through random characters of
+// the art's set on start and every minute change, and now and then the
+// colour fringe on all text glitches like interference on an old screen.
 // Colours and font come from theme.conf. Positions are in image pixels
 // (1920x1080); the stage scales like the image (cover).
 import QtQuick
@@ -26,6 +30,21 @@ Rectangle {
 	property string timeText: Qt.formatTime(new Date(), "HH:mm")
 	property string dateText: Qt.formatDate(new Date(), "ddd dd.MM.yyyy")
 	property bool alert: status === "failed" || keyboard.capsLock
+
+	// Typing intro: characters of the prompt shown so far
+	property int typed: 0
+	readonly property int typeTotal: line1.text.length + line2.text.length + line3.text.length
+	readonly property bool typedOut: typed >= typeTotal
+	// Characters [start, start + len) of the intro that are visible
+	function reveal(start, len) { return Math.max(0, Math.min(len, typed - start)) }
+	// Clock decoding: ticks left (counting down) and a counter that makes
+	// the scrambled text re-roll on every tick
+	property int scramble: 0
+	property int noise: 0
+	// Signal glitch: 0 = calm, 1 = fringe pulled far apart
+	property real glitch: 0
+	// Tear direction/size, re-rolled at every step of a glitch
+	property real tearSeed: 1
 
 	function login() {
 		if (password.text === "")
@@ -60,16 +79,29 @@ Rectangle {
 
 	// Text with the ASCII art's colour fringe: cyan and magenta copies
 	// offset to either side of the mint text
+	// (glitches pull the copies apart). `shown` limits it to the first
+	// characters, for the typing intro (-1 = all).
 	component Fringe: Item {
-		property alias text: main.text
+		property string text
+		property int shown: -1
 		property alias color: main.color
 		property alias bold: main.font.bold
 		property real spread: 1.2
+		readonly property real offset: spread + root.glitch * 14
+		// Each line tears sideways its own way during a glitch
+		readonly property real tear: root.glitch * root.tearSeed * (10 + (text.length % 7) * 3) * (text.length % 2 ? 1 : -1)
 		width: main.implicitWidth
 		height: main.implicitHeight
-		Text { x: -parent.spread; text: main.text; font: main.font; color: config.Cyan; opacity: 0.7 }
-		Text { x: parent.spread; text: main.text; font: main.font; color: config.Magenta; opacity: 0.8 }
-		Text { id: main; color: config.Text; font.family: config.Font; font.pixelSize: 18 }
+		Text { x: parent.tear - parent.offset; text: main.text; font: main.font; color: config.Cyan; opacity: 0.7 }
+		Text { x: parent.tear + parent.offset; text: main.text; font: main.font; color: config.Magenta; opacity: 0.8 }
+		Text {
+			id: main
+			x: parent.tear
+			text: parent.shown < 0 ? parent.text : parent.text.substring(0, parent.shown)
+			color: config.Text
+			font.family: config.Font
+			font.pixelSize: 18
+		}
 	}
 
 	// Fringed text that works as a button
@@ -142,6 +174,17 @@ Rectangle {
 			}
 			return rows
 		}
+		// A clock row while decoding: each lit cell is a random character
+		// of the art's set, with fewer of them as the ticks run out, so the
+		// digits settle in. `noise` only forces a re-roll per tick.
+		readonly property string charset: "iIlYVXRBMW#%=+"
+		function scrambled(row, ticks, noise) {
+			var out = ""
+			for (var i = 0; i < row.length; i++)
+				out += row[i] === "M" && Math.random() < ticks / 12
+					? charset[Math.floor(Math.random() * charset.length)] : row[i]
+			return out
+		}
 
 		Image { anchors.fill: parent; source: config.Background }
 
@@ -159,7 +202,7 @@ Rectangle {
 					model: block.rows
 					Fringe {
 						y: index * 20
-						text: modelData
+						text: root.scramble > 0 ? stage.scrambled(modelData, root.scramble, root.noise) : modelData
 						spread: 1.4
 						bold: true
 					}
@@ -178,14 +221,29 @@ Rectangle {
 			y: 446
 			spacing: 3
 
-			Fringe { text: "USR::" + root.userName.toUpperCase() + (root.host ? "@" + root.host.toUpperCase() : "") }
-			Fringe { text: "> SPEAK THE WORD, TRAVELLER"; color: config.Line }
+			Fringe {
+				id: line1
+				text: "USR::" + root.userName.toUpperCase() + (root.host ? "@" + root.host.toUpperCase() : "")
+				shown: root.reveal(0, text.length)
+			}
+			Fringe {
+				id: line2
+				text: "> SPEAK THE WORD, TRAVELLER"
+				shown: root.reveal(line1.text.length, text.length)
+				color: config.Line
+			}
 
 			Row {
-				Fringe { text: "PWD::" }
+				Fringe {
+					id: line3
+					text: "PWD::"
+					shown: root.reveal(line1.text.length + line2.text.length, text.length)
+				}
 				TextInput {
 					id: password
 					width: 260
+					// Can be typed into at once; shows up when the intro is done
+					opacity: root.typedOut ? 1 : 0
 					focus: true
 					clip: true
 					echoMode: TextInput.Password
@@ -235,6 +293,8 @@ Rectangle {
 			// Power keys (also clickable) and the session that will start
 			Row {
 				spacing: 14
+				opacity: root.typedOut ? 1 : 0
+				Behavior on opacity { NumberAnimation { duration: 400 } }
 				AsciiButton { text: "F1:REBOOT"; visible: sddm.canReboot; onClicked: sddm.reboot() }
 				AsciiButton { text: "F2:HALT"; visible: sddm.canPowerOff; onClicked: sddm.powerOff() }
 				Fringe {
@@ -261,6 +321,45 @@ Rectangle {
 		running: root.status === "busy"
 		repeat: true
 		onTriggered: root.dots++
+	}
+
+	// Typing intro, about 28 ms per character; then the clock decodes
+	NumberAnimation on typed {
+		id: intro
+		from: 0
+		to: root.typeTotal
+		duration: root.typeTotal * 28
+		onFinished: root.scramble = 12
+	}
+	// Decode the clock on every minute change (and when the intro ends)
+	onTimeTextChanged: scramble = 12
+	Timer {
+		interval: 50
+		running: root.scramble > 0
+		repeat: true
+		onTriggered: { root.noise++; root.scramble-- }
+	}
+	// Signal glitch: first one after ~4 s, then every 10-20 s
+	SequentialAnimation {
+		id: glitchAnim
+		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		NumberAnimation { target: root; property: "glitch"; to: 1; duration: 40 }
+		PauseAnimation { duration: 60 }
+		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		NumberAnimation { target: root; property: "glitch"; to: 0.3; duration: 50 }
+		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		NumberAnimation { target: root; property: "glitch"; to: 0.9; duration: 40 }
+		PauseAnimation { duration: 60 }
+		NumberAnimation { target: root; property: "glitch"; to: 0; duration: 200 }
+	}
+	Timer {
+		interval: 4000
+		running: true
+		repeat: true
+		onTriggered: {
+			glitchAnim.restart()
+			interval = 10000 + Math.random() * 10000
+		}
 	}
 
 	Component.onCompleted: password.forceActiveFocus()
