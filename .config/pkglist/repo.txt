@@ -35,6 +35,7 @@ ghostscript
 git
 github-cli
 glow
+gnome-keyring
 grim
 gvfs
 hyperv
