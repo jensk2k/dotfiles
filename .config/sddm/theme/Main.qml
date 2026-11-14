@@ -45,6 +45,10 @@ Rectangle {
 	property real glitch: 0
 	// Tear direction/size, re-rolled at every step of a glitch
 	property real tearSeed: 1
+	property real vSeed: 1
+	function reroll() { tearSeed = Math.random() * 2 - 1; vSeed = Math.random() * 2 - 1 }
+	// Repeatable pseudo-random 0..1 for a seed (glitch slices)
+	function rnd(n) { var x = Math.sin(n * 12.9898) * 43758.5453; return x - Math.floor(x) }
 
 	function login() {
 		if (password.text === "")
@@ -90,13 +94,16 @@ Rectangle {
 		readonly property real offset: spread + root.glitch * 14
 		// Each line tears sideways its own way during a glitch
 		readonly property real tear: root.glitch * root.tearSeed * (10 + (text.length % 7) * 3) * (text.length % 2 ? 1 : -1)
+		// ... and jumps up or down
+		readonly property real vtear: root.glitch * root.vSeed * ((text.length * 7) % 5 - 2) * 4
 		width: main.implicitWidth
 		height: main.implicitHeight
-		Text { x: parent.tear - parent.offset; text: main.text; font: main.font; color: config.Cyan; opacity: 0.7 }
-		Text { x: parent.tear + parent.offset; text: main.text; font: main.font; color: config.Magenta; opacity: 0.8 }
+		Text { x: parent.tear - parent.offset; y: parent.vtear - root.glitch * 3; text: main.text; font: main.font; color: config.Cyan; opacity: 0.7 }
+		Text { x: parent.tear + parent.offset; y: parent.vtear + root.glitch * 3; text: main.text; font: main.font; color: config.Magenta; opacity: 0.8 }
 		Text {
 			id: main
 			x: parent.tear
+			y: parent.vtear
 			text: parent.shown < 0 ? parent.text : parent.text.substring(0, parent.shown)
 			color: config.Text
 			font.family: config.Font
@@ -133,6 +140,9 @@ Rectangle {
 		width: 1920
 		height: 1080
 		anchors.centerIn: parent
+		// The whole picture jumps during a glitch
+		anchors.verticalCenterOffset: root.glitch * root.vSeed * 14
+		anchors.horizontalCenterOffset: root.glitch * root.tearSeed * 6
 		scale: Math.max(root.width / 1920, root.height / 1080)
 
 		// The ASCII art's character grid, measured from the image: 65
@@ -306,6 +316,58 @@ Rectangle {
 		}
 	}
 
+	// ---- Full-screen effects, drawn over the stage at the same scale
+	Item {
+		id: fx
+		width: 1920
+		height: 1080
+		anchors.centerIn: parent
+		scale: stage.scale
+
+		// Glitch: slices of the screen torn sideways (copies of the
+		// stage, re-rolled with the tear at every step of a glitch)
+		Repeater {
+			model: 5
+			ShaderEffectSource {
+				readonly property real seed: root.tearSeed * 100 + index * 7
+				readonly property real h: 6 + root.rnd(seed + 1) * 90
+				visible: root.glitch > 0.1
+				live: visible
+				sourceItem: stage
+				y: root.rnd(seed) * (1080 - h)
+				height: h
+				width: 1920
+				x: (root.rnd(seed + 2) * 2 - 1) * 90 * root.glitch
+				sourceRect: Qt.rect(0, y, 1920, h)
+			}
+		}
+		// Glitch: a short colour flash, cyan or magenta
+		Rectangle {
+			anchors.fill: parent
+			color: root.vSeed > 0 ? config.Cyan : config.Magenta
+			opacity: root.glitch * 0.12
+		}
+		// Ambient: a faint bright band rolling down, like a CRT refresh bar
+		Rectangle {
+			id: rollBar
+			width: 1920
+			height: 160
+			y: -height
+			opacity: 0.06
+			gradient: Gradient {
+				GradientStop { position: 0; color: "transparent" }
+				GradientStop { position: 0.8; color: config.Line }
+				GradientStop { position: 1; color: "transparent" }
+			}
+			SequentialAnimation on y {
+				loops: Animation.Infinite
+				PauseAnimation { duration: 3000 }
+				NumberAnimation { from: -160; to: 1080; duration: 2600 }
+				PauseAnimation { duration: 5000 }
+			}
+		}
+	}
+
 	Timer {
 		interval: 530
 		running: true
@@ -342,12 +404,12 @@ Rectangle {
 	// Signal glitch: first one after ~4 s, then every 10-20 s
 	SequentialAnimation {
 		id: glitchAnim
-		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		ScriptAction { script: root.reroll() }
 		NumberAnimation { target: root; property: "glitch"; to: 1; duration: 40 }
 		PauseAnimation { duration: 60 }
-		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		ScriptAction { script: root.reroll() }
 		NumberAnimation { target: root; property: "glitch"; to: 0.3; duration: 50 }
-		ScriptAction { script: root.tearSeed = Math.random() * 2 - 1 }
+		ScriptAction { script: root.reroll() }
 		NumberAnimation { target: root; property: "glitch"; to: 0.9; duration: 40 }
 		PauseAnimation { duration: 60 }
 		NumberAnimation { target: root; property: "glitch"; to: 0; duration: 200 }
