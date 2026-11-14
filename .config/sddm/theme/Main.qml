@@ -4,8 +4,8 @@
 // image is shown as is; everything else is written in the ASCII art's style
 // (JetBrains Mono 18 px, the art's red/cyan colour fringe, NAME:: labels):
 //   - left: the prompt, floating in the sky the wizard points at
-//   - right: the time carved as negative space into the dense top rows of
-//     the ASCII art, the date as a line under it
+//   - right: the time as big ASCII-art digits (hours above minutes) drawn
+//     into the dotted lower right of the Mona Lisa, the date in its bottom row
 // Colours and font come from theme.conf. Positions are in image pixels
 // (1920x1080); the stage scales like the image (cover).
 import QtQuick
@@ -63,6 +63,7 @@ Rectangle {
 	component Fringe: Item {
 		property alias text: main.text
 		property alias color: main.color
+		property alias bold: main.font.bold
 		property real spread: 1.2
 		width: main.implicitWidth
 		height: main.implicitHeight
@@ -108,7 +109,7 @@ Rectangle {
 		readonly property real gridX: 1046.2
 		readonly property real gridY: 68
 
-		// 5x7 bitmap digits for the carved clock
+		// 5x7 bitmap digits for the clock
 		readonly property var glyphs: ({
 			"0": [" ### ", "#   #", "#  ##", "# # #", "##  #", "#   #", " ### "],
 			"1": ["  #  ", " ##  ", "  #  ", "  #  ", "  #  ", "  #  ", " ### "],
@@ -122,40 +123,52 @@ Rectangle {
 			"9": [" ### ", "#   #", "#   #", " ####", "    #", "    #", " ### "],
 			":": [" ", " ", "#", " ", "#", " ", " "]
 		})
-		// Grid cells ({c, r}) lit by a string in the bitmap font, with one
-		// empty column between glyphs. "HH:mm" is 25 columns wide.
-		function litCells(t) {
-			var cells = []
-			var col = 0
-			for (var i = 0; i < t.length; i++) {
-				var g = glyphs[t[i]]
-				for (var r = 0; r < 7; r++)
-					for (var c = 0; c < g[r].length; c++)
-						if (g[r][c] === "#")
-							cells.push({ c: col + c, r: r })
-				col += g[0].length + 1
+		// The 7 text rows of a string in the bitmap font: every lit pixel
+		// is two "M" cells wide (square, as the cells are about twice as tall
+		// as wide), unlit ones are spaces so the art's dots show through; two
+		// empty cells between glyphs. Two digits are 22 cells wide.
+		function bitmapRows(t) {
+			var rows = []
+			for (var r = 0; r < 7; r++) {
+				var s = ""
+				for (var i = 0; i < t.length; i++) {
+					var g = glyphs[t[i]][r]
+					for (var c = 0; c < g.length; c++)
+						s += g[c] === "#" ? "MM" : "  "
+					if (i < t.length - 1)
+						s += "  "
+				}
+				rows.push(s)
 			}
-			return cells
+			return rows
 		}
 
 		Image { anchors.fill: parent; source: config.Background }
 
-		// ---- Right: the time carved into the dense top rows (columns
-		// 40-64, rows 0-6), the date as a line under it ----
+		// ---- Right: hours above minutes in the dotted lower right
+		// (columns 42-63, rows 30-36 and 38-44), the date in the bottom
+		// row (46) ----
 		Repeater {
-			model: stage.litCells(root.timeText)
-			Rectangle {
-				// A hair wider than a cell so no sliver of a letter is left
-				x: stage.gridX + (40 + modelData.c) * stage.cellW - 1
-				y: stage.gridY + modelData.r * 20
-				width: stage.cellW + 1.5
-				height: 20
-				color: config.Blue
+			model: root.timeText.split(":")
+			Item {
+				id: block
+				property var rows: stage.bitmapRows(modelData)
+				x: stage.gridX + 42 * stage.cellW
+				y: stage.gridY + (30 + index * 8) * 20
+				Repeater {
+					model: block.rows
+					Fringe {
+						y: index * 20
+						text: modelData
+						spread: 1.4
+						bold: true
+					}
+				}
 			}
 		}
 		Strip {
 			x: stage.gridX + 65 * stage.cellW - width
-			y: stage.gridY + 7 * 20
+			y: stage.gridY + 46 * 20
 			text: "SYS::" + root.dateText.toUpperCase()
 		}
 
