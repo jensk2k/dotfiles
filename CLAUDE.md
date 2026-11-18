@@ -80,6 +80,8 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - Optional: `thermald` (Intel CPU), `cups` only if printing is needed.
 - **Security and secrets**:
   - **Fingerprint for sudo** (optional): hyprlock and polkit already take it; `auth sufficient pam_fprintd.so` in `/etc/pam.d/sudo` would extend it to sudo (in a terminal it waits for the finger before asking for the password).
+  - **Enroll all fingers**: only the right index finger is enrolled (`fprintd-list jk`); `fprintd-enroll -f <finger>` for each of the others (`left-index-finger`, `right-thumb`, …).
+  - **Smoother fingerprint use with Bitwarden**, especially SSH key approvals: less friction than today's flow (unlock with the finger through polkit, then approve each key use). Look at Bitwarden's SSH-agent approval settings (e.g. ask once per unlock instead of every use), its vault timeout, and whether the approval prompt itself can take the finger.
   - **Brave secrets into the keyring** (postponed: maybe switching browser, see LibreWolf): Brave doesn't use gnome-keyring; `--password-store=gnome-libsecret` in `~/.config/brave-flags.conf` would change that (saved passwords/cookies may need re-entering).
 - **Waybar**:
   - Hide the workspaces pill while only one workspace is in use.
@@ -87,6 +89,8 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - Separate the time and date pills (today `clock#date` is a drawer that slides out of `clock#time`).
   - Bluetooth as a tray icon, or Wi-Fi as a Waybar icon/button (Wi-Fi is the nm-applet tray icon today; Bluetooth is in the toggles pill).
   - Black-and-white (monochrome/symbolic) tray icons for Signal and Bitwarden.
+  - **Pending reboot in the update pill**: `custom/updates` should also say when a reboot is needed after an update (e.g. the running kernel `uname -r` no longer has its modules in `/usr/lib/modules`, or linux/systemd/glibc were upgraded since boot).
+  - **Claude Code status pill**: show Claude Code's state (e.g. working / waiting for input / idle, maybe per session) in Waybar; could be fed by Claude Code hooks writing a state file and signalling Waybar.
 - **Launcher / menus**:
   - Power menu (`scripts/power-menu.sh`): hotkeys per entry (e.g. `l` = lock) instead of typing to filter.
   - Larger, wider launcher: fuzzel is `width=40`, `lines=12` now.
