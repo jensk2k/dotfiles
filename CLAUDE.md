@@ -70,45 +70,4 @@ No build/test suite. To sanity-check:
 
 ## Roadmap
 
-The user's goals for this setup, in no particular order. Notes are starting points, not decisions. Remove an item once it's done.
-
-- **Something different for the wallpaper and the lock screen** (hyprpaper/hyprlock): not decided yet what; just the wish to move away from the current static wallpaper + hyprlock look.
-- **Prep the dotfiles for a desktop port**: a second machine (desktop) using the same repo. Find what's laptop-specific (battery/backlight/power-profile scripts and Waybar modules, touchpad gestures, the Hitscan mouse `hl.device`, i915 notes, fingerprint) and make it conditional on the machine.
-- **System basics** (found in a survey on 2026-11-13; most need sudo, so the user runs or approves them):
-  - Backups: deferred (2026-11-14) until there's data worth keeping that isn't in a git repo; everything in `$HOME` is replaceable or in git (push the repos, e.g. `skidbladnir`'s unpushed commits), and the SSH key can be regenerated (GitHub + NAS). When needed, restic with a user timer.
-  - **Investigate a reinstall on btrfs + LUKS**: root (`nvme0n1p2`) is plain ext4, so no snapshots (snapper and btrfs-progs were removed 2026-11-14, they couldn't do anything on ext4) and no encryption. Both need a reinstall, so look into doing them together: btrfs subvolumes (`@`, `@home`, …) with snapper + snap-pac (a snapshot before every pacman transaction) and boot entries for snapshots, on LUKS (with fingerprint/TPM unlock options). The package list (`~/.config/pkglist/`) and the dotfiles make a reinstall cheap; push all git repos first.
-  - Optional: `thermald` (Intel CPU), `cups` only if printing is needed.
-- **Security and secrets**:
-  - **Fingerprint for sudo** (optional): hyprlock and polkit already take it; `auth sufficient pam_fprintd.so` in `/etc/pam.d/sudo` would extend it to sudo (in a terminal it waits for the finger before asking for the password).
-  - **Bitwarden approval dialog from the keyboard**: prompts now slide in on the `vault` workspace and come once per unlock; still open is whether the dialog can be answered without the mouse (check Tab/Enter/Esc; if not, maybe a key that clicks Authorize).
-  - **Bitwarden hardening** (all clicks in Bitwarden; reviewed 2026-11-18, aiming for a reasonable security/convenience balance):
-    - **Two-step login** (web vault → Settings → Security → Two-step login): an authenticator app (TOTP: Aegis, 2FAS, Ente Auth) or a security key/passkey. Keep the recovery code offline (paper); don't store Bitwarden's own TOTP in Bitwarden. Protects the account against logins from new devices with a stolen master password.
-    - **Shorter vault timeout**: the app is `onRestart` (unlocked all session, even while the screen is locked); "On system lock" or ~1 h, re-unlock is just the finger. Check that "On system lock" notices hyprlock (`loginctl lock-session`); if not, use a time.
-    - **KDF to Argon2id** (web vault → Settings → Security → Keys; default parameters): now PBKDF2 600,000 iterations; harder to crack if the encrypted vault ever leaks. Other sessions may need to log in again.
-  - **Explore a Bitwarden CLI picker** (later, not decided): `rbw` + `rofi-rbw` (extra repo) as a fuzzel picker (e.g. `SUPER + CTRL + K`): copy (`wl-copy`, auto-clear) or type (`wtype`) a username, password or TOTP without opening the app; also lets scripts read secrets. It can't handle the desktop app's SSH approvals, and it unlocks separately (master password via pinentry, no fingerprint), so weigh one more unlock per reboot/lock. The official `bw` is slower (Node) and needs session tokens.
-  - **Brave secrets into the keyring** (postponed: maybe switching browser, see LibreWolf): Brave doesn't use gnome-keyring; `--password-store=gnome-libsecret` in `~/.config/brave-flags.conf` would change that (saved passwords/cookies may need re-entering).
-- **Waybar**:
-  - Hide the workspaces pill while only one workspace is in use.
-  - A way to see percentages (volume, brightness, battery, …): today they're icons with the values in tooltips only. Maybe swayosd (installed) for the keys, or text in the pills.
-  - Separate the time and date pills (today `clock#date` is a drawer that slides out of `clock#time`).
-  - Bluetooth as a tray icon, or Wi-Fi as a Waybar icon/button (Wi-Fi is the nm-applet tray icon today; Bluetooth is in the toggles pill).
-  - Black-and-white (monochrome/symbolic) tray icons for Signal and Bitwarden.
-  - **Pending reboot in the update pill**: `custom/updates` should also say when a reboot is needed after an update (e.g. the running kernel `uname -r` no longer has its modules in `/usr/lib/modules`, or linux/systemd/glibc were upgraded since boot).
-  - **Claude Code status pill**: show Claude Code's state (e.g. working / waiting for input / idle, maybe per session) in Waybar; could be fed by Claude Code hooks writing a state file and signalling Waybar.
-- **Launcher / menus**:
-  - Power menu (`scripts/power-menu.sh`): hotkeys per entry (e.g. `l` = lock) instead of typing to filter.
-  - Larger, wider launcher: fuzzel is `width=40`, `lines=12` now.
-- **Terminal (kitty)**:
-  - Disable tabs: no tab settings in `kitty.conf` yet; unmap the tab keys (`new_tab` etc.) and/or `tab_bar_style hidden`.
-  - Investigate faster kitty start-up (e.g. measure kitty vs. `zsh -i` start time; consider kitty's single-instance mode).
-- **Apps and fonts**:
-  - **Consider switching from Brave to LibreWolf** (privacy-focused Firefox fork, AUR `librewolf-bin`): bookmarks/password import, extensions (Surfingkeys exists for Firefox), Waybar `window-rewrite` icon and window rules for its class, `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal.
-  - Fix the LazyVim warnings and errors (`:checkhealth`, `:Lazy`).
-  - Add the TTS plugin from GitHub (which one is still to be named).
-  - OpenRA: the official-repo `openra` package is already installed; remove the Flatpak (`flatpak uninstall net.openra.OpenRA`; after that the Flatpak remotes may be unused).
-  - Surfingkeys dark mode (browser extension theme in Brave).
-  - CJK fonts (`noto-fonts-cjk`): Chinese/Japanese/Korean text shows as boxes.
-  - Qt apps don't follow the theme (qt6ct only); maybe `qt5ct`/`kvantum`.
-- **Mouse latency**: partly done (flat accel for the Hitscan; tearing rejected, see Hyprland above). What's left is to measure whether it's still noticeable (`evhz` is installed for the polling rate).
-- **Smaller ideas**:
-  - Verify once that hypridle really skips dim/lock/suspend while `SUPER + CTRL + I` (stay awake) is on; it needs ~5 idle minutes.
+The user's goals for this setup live in `~/ROADMAP.md` (tracked in the dotfiles). Read it when planning or when the user asks what's next; add new items there, and remove an item once it's done.
