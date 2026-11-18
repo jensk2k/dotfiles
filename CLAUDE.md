@@ -81,6 +81,7 @@ The user's goals for this setup, in no particular order. Notes are starting poin
 - **Security and secrets**:
   - **Fingerprint for sudo** (optional): hyprlock and polkit already take it; `auth sufficient pam_fprintd.so` in `/etc/pam.d/sudo` would extend it to sudo (in a terminal it waits for the finger before asking for the password).
   - **Bitwarden approval dialog from the keyboard**: prompts now slide in on the `vault` workspace and come once per unlock; still open is whether the dialog can be answered without the mouse (check Tab/Enter/Esc; if not, maybe a key that clicks Authorize).
+  - **Explore a Bitwarden CLI picker** (later, not decided): `rbw` + `rofi-rbw` (extra repo) as a fuzzel picker (e.g. `SUPER + CTRL + K`): copy (`wl-copy`, auto-clear) or type (`wtype`) a username, password or TOTP without opening the app; also lets scripts read secrets. It can't handle the desktop app's SSH approvals, and it unlocks separately (master password via pinentry, no fingerprint), so weigh one more unlock per reboot/lock. The official `bw` is slower (Node) and needs session tokens.
   - **Brave secrets into the keyring** (postponed: maybe switching browser, see LibreWolf): Brave doesn't use gnome-keyring; `--password-store=gnome-libsecret` in `~/.config/brave-flags.conf` would change that (saved passwords/cookies may need re-entering).
 - **Waybar**:
   - Hide the workspaces pill while only one workspace is in use.
