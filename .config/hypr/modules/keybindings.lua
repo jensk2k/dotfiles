@@ -205,6 +205,8 @@ local tts = "~/.claude/tts/bin/claude-tts hotkey "
 bind("CTRL + ALT + SHIFT + R", hl.dsp.exec_cmd(tts .. "read-selection"), "Read the selected text aloud")
 bind("CTRL + ALT + SHIFT + B", hl.dsp.exec_cmd(tts .. "read-back"), "Read back Claude's last reply")
 bind("CTRL + ALT + SHIFT + S", hl.dsp.exec_cmd(tts .. "stop"), "Stop speaking")
+bind("CTRL + ALT + SHIFT + comma", hl.dsp.exec_cmd(tts .. "back"), "Back one sentence", { repeating = true })
+bind("CTRL + ALT + SHIFT + period", hl.dsp.exec_cmd(tts .. "skip"), "Skip one sentence", { repeating = true })
 
 -- Volume, brightness and media keys (work on the lock screen too)
 group("Media keys")
