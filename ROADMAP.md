@@ -3,10 +3,11 @@
 The user's goals for this setup, in no particular order. Notes are starting points, not decisions. Remove an item once it's done.
 
 - **Something different for the wallpaper and the lock screen** (hyprpaper/hyprlock): not decided yet what; just the wish to move away from the current static wallpaper + hyprlock look.
-- **Desktop: first-boot checks** (the repo is prepared for it, see Machines in CLAUDE.md; these need the real machine):
+- **Desktop: first-boot checks** (RTX 3070, LG UltraGear 27GL850-B; the repo is prepared for it, see Machines in CLAUDE.md; these need the real machine):
   - Lock once with hyprlock and unlock with the password: its `fingerprint` block expects a sensor the desktop doesn't have (it should just fail quietly; if it doesn't, move the block to a per-host setting).
-  - GPU: NVIDIA needs its variables in `~/.config/uwsm/env.<hostname>` and `nvidia-drm` modesetting; AMD/Intel need nothing.
-  - Monitors: run nwg-displays; on a high-DPI screen set a scale and check kitty, fuzzel (`dpi-aware=no`, pixel sizes) and Waybar sizes.
+  - GPU (RTX 3070): install `nvidia-open nvidia-utils lib32-nvidia-utils libva-nvidia-driver` (multilib enabled for the lib32 one, e.g. Steam); the session variables are already in `~/.config/uwsm/env`, gated on the loaded driver. Modesetting is the driver's default now; check with `cat /sys/module/nvidia_drm/parameters/modeset` (Y). Remove `kms` from `HOOKS` in `/etc/mkinitcpio.conf` (it pulls in nouveau) and rebuild with `mkinitcpio -P`. Then check video decoding (`vainfo`) and that Electron apps and the cursor behave.
+  - Monitor (27\" 2560×1440, 144 Hz, ~109 DPI): run nwg-displays and pick 2560x1440@144 (not just "preferred", which may land on 60 Hz), scale 1. VRR (G-Sync Compatible): `vrr = 2` (fullscreen only) avoids the flicker that always-on VRR can cause on NVIDIA; set it in `hosts/<hostname>.lua` if nwg-displays doesn't. Text looks physically larger than on the laptop's ~157 DPI panel at the same sizes; adjust only if it bothers.
+  - Optional: tearing for games (`allow_tearing` + an `immediate` window rule) was rejected on the laptop because i915 can't do it, but NVIDIA can; try it for Quake 3 there. Monitor brightness from Waybar would need DDC/CI (`ddcutil`), which this monitor supports.
   - hypridle suspends after 30 min: decide whether the desktop should (override in a per-host hypridle setup if not).
   - Waybar temperature: picks thermal zone 0, which may not be the CPU on the desktop (`hwmon-path` in `desktop.jsonc`).
   - Start its own package list with `pkglist.sh`.

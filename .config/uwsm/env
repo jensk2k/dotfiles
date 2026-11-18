@@ -8,6 +8,15 @@ export QT_QPA_PLATFORMTHEME=qt6ct
 # SSH agent: Bitwarden desktop (Settings > Enable SSH agent). The key lives in the
 # vault (item type "SSH key"), not in ~/.ssh; the vault must be unlocked to use it.
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+# NVIDIA GPU (the desktop's RTX 3070, nvidia-open driver): set whenever the
+# NVIDIA kernel driver is loaded, so no per-host file is needed. Hardware
+# video decoding (libva-nvidia-driver) and GLX through NVIDIA's library.
+if [ -d /sys/module/nvidia_drm ]; then
+	export LIBVA_DRIVER_NAME=nvidia
+	export __GLX_VENDOR_LIBRARY_NAME=nvidia
+	export NVD_BACKEND=direct
+fi
+
 # Per-machine additions (e.g. GPU variables on the desktop), if the machine
 # has one: env.<hostname> next to this file
 host_env="$HOME/.config/uwsm/env.$(cat /etc/hostname)"
