@@ -97,6 +97,34 @@ hl.window_rule({
 	move = { 10, 44 },
 })
 
+-- Bitwarden lives on its own special workspace, "vault" (SUPER + CTRL + V
+-- toggles it; created empty, it starts Bitwarden). When Bitwarden asks for
+-- something (an SSH key approval, an unlock) its window turns urgent, and the
+-- vault slides in over the current workspace so the prompt can't be missed.
+hl.window_rule({
+	name = "bitwarden-vault",
+	match = { class = "^bitwarden$" },
+	workspace = "special:vault silent",
+})
+hl.on("workspace.created", function(ws)
+	if ws.name == "special:vault" and ws.is_empty then
+		hl.exec_cmd("uwsm app -- bitwarden")
+	end
+end)
+hl.on("window.urgent", function(w)
+	if not (w and w.class == "bitwarden") then
+		return
+	end
+	local ws = w.workspace
+	if ws and ws.name:match("^special:") then
+		local shown = hl.get_active_special_workspace()
+		if not (shown and shown.name == ws.name) then
+			hl.dispatch(hl.dsp.workspace.toggle_special(ws.name:gsub("^special:", "")))
+		end
+	end
+	hl.dispatch(hl.dsp.focus({ window = "address:" .. w.address }))
+end)
+
 -- Window swallowing: a GUI app started from a kitty window (mpv, an image
 -- viewer, satty) takes the terminal's place while it runs; the terminal comes
 -- back when the app closes. Only plain kitty windows swallow (not the bar
