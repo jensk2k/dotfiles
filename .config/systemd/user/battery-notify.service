@@ -1,6 +1,8 @@
 [Unit]
 Description=Low-battery notification check
 PartOf=graphical-session.target
+# Laptops only: skipped on a machine without a battery (desktop)
+ConditionPathExistsGlob=/sys/class/power_supply/BAT*
 
 [Service]
 Type=oneshot

@@ -3,7 +3,7 @@
 -------------------
 
 hl.on("hyprland.start", function()
-	hl.exec_cmd("uwsm app -- waybar")
+	hl.exec_cmd("uwsm app -- ~/.config/waybar/start.sh") -- picks the laptop or desktop config
 	hl.exec_cmd("uwsm app -- mako")
 	hl.exec_cmd("uwsm app -- hyprpaper")
 	hl.exec_cmd("uwsm app -- hypridle")

@@ -1,6 +1,8 @@
 [Unit]
 Description=Switch power profile on charger plug/unplug
 PartOf=graphical-session.target
+# Laptops only: skipped on a machine without a battery (desktop)
+ConditionPathExistsGlob=/sys/class/power_supply/BAT*
 After=graphical-session.target
 
 [Service]

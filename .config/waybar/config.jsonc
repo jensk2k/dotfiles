@@ -1,4 +1,4 @@
-// After editing: pkill waybar ; uwsm app -- waybar &
+// After editing: pkill waybar ; uwsm app -- ~/.config/waybar/start.sh &  (start.sh picks this file or desktop.jsonc)
 {
     "layer": "top",
     "position": "top",

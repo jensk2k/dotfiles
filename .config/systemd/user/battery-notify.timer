@@ -1,6 +1,8 @@
 [Unit]
 Description=Check the battery every minute for low-battery notifications
 PartOf=graphical-session.target
+# Laptops only: skipped on a machine without a battery (desktop)
+ConditionPathExistsGlob=/sys/class/power_supply/BAT*
 
 [Timer]
 OnActiveSec=10s

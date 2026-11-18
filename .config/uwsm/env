@@ -8,3 +8,10 @@ export QT_QPA_PLATFORMTHEME=qt6ct
 # SSH agent: Bitwarden desktop (Settings > Enable SSH agent). The key lives in the
 # vault (item type "SSH key"), not in ~/.ssh; the vault must be unlocked to use it.
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+# Per-machine additions (e.g. GPU variables on the desktop), if the machine
+# has one: env.<hostname> next to this file
+host_env="$HOME/.config/uwsm/env.$(cat /etc/hostname)"
+if [ -r "$host_env" ]; then
+	. "$host_env"
+fi
+unset host_env

@@ -3,7 +3,13 @@
 The user's goals for this setup, in no particular order. Notes are starting points, not decisions. Remove an item once it's done.
 
 - **Something different for the wallpaper and the lock screen** (hyprpaper/hyprlock): not decided yet what; just the wish to move away from the current static wallpaper + hyprlock look.
-- **Prep the dotfiles for a desktop port**: a second machine (desktop) using the same repo. Find what's laptop-specific (battery/backlight/power-profile scripts and Waybar modules, touchpad gestures, the Hitscan mouse `hl.device`, i915 notes, fingerprint) and make it conditional on the machine.
+- **Desktop: first-boot checks** (the repo is prepared for it, see Machines in CLAUDE.md; these need the real machine):
+  - Lock once with hyprlock and unlock with the password: its `fingerprint` block expects a sensor the desktop doesn't have (it should just fail quietly; if it doesn't, move the block to a per-host setting).
+  - GPU: NVIDIA needs its variables in `~/.config/uwsm/env.<hostname>` and `nvidia-drm` modesetting; AMD/Intel need nothing.
+  - Monitors: run nwg-displays; on a high-DPI screen set a scale and check kitty, fuzzel (`dpi-aware=no`, pixel sizes) and Waybar sizes.
+  - hypridle suspends after 30 min: decide whether the desktop should (override in a per-host hypridle setup if not).
+  - Waybar temperature: picks thermal zone 0, which may not be the CPU on the desktop (`hwmon-path` in `desktop.jsonc`).
+  - Start its own package list with `pkglist.sh`.
 - **System basics** (found in a survey on 2026-11-13; most need sudo, so the user runs or approves them):
   - Backups: deferred (2026-11-14) until there's data worth keeping that isn't in a git repo; everything in `$HOME` is replaceable or in git (push the repos, e.g. `skidbladnir`'s unpushed commits), and the SSH key can be regenerated (GitHub + NAS). When needed, restic with a user timer.
   - **Investigate a reinstall on btrfs + LUKS**: root (`nvme0n1p2`) is plain ext4, so no snapshots (snapper and btrfs-progs were removed 2026-11-14, they couldn't do anything on ext4) and no encryption. Both need a reinstall, so look into doing them together: btrfs subvolumes (`@`, `@home`, …) with snapper + snap-pac (a snapshot before every pacman transaction) and boot entries for snapshots, on LUKS (with fingerprint/TPM unlock options). The package list (`~/.config/pkglist/`) and the dotfiles make a reinstall cheap; push all git repos first.

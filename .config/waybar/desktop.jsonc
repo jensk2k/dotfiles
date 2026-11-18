@@ -1,0 +1,13 @@
+// Waybar for a machine without a backlight (desktop), picked by start.sh.
+// Everything comes from config.jsonc; values here win over the included file,
+// so only what differs is listed.
+{
+    "include": ["~/.config/waybar/config.jsonc"],
+    "modules-left": [
+        "custom/power",
+        "hyprland/workspaces",
+        "group/toggles",
+        "group/volume",
+        "mpris"
+    ]
+}

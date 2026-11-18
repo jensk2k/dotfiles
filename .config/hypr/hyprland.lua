@@ -7,3 +7,17 @@ require("modules/monitors")
 require("modules/appearance")
 require("modules/input")
 require("modules/rules")
+
+-- Per-machine settings last, so they win: hosts/<hostname>.lua, if this
+-- machine has one (the laptop doesn't; laptop-only bits like the touchpad
+-- and gestures are harmless on a desktop and stay in the shared modules)
+local hostname = io.open("/etc/hostname")
+if hostname then
+	local host = hostname:read("l")
+	hostname:close()
+	local f = io.open(os.getenv("HOME") .. "/.config/hypr/hosts/" .. host .. ".lua")
+	if f then
+		f:close()
+		require("hosts/" .. host)
+	end
+end
