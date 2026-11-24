@@ -11,6 +11,7 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - hypridle suspends after 30 min: decide whether the desktop should (override in a per-host hypridle setup if not).
   - Waybar temperature: picks thermal zone 0, which may not be the CPU on the desktop (`hwmon-path` in `desktop.jsonc`).
   - Start its own package list with `pkglist.sh`.
+  - Claude pill: the hooks live in the untracked `~/.claude/settings.json`; add them there (see Waybar Claude pill in CLAUDE.md), or decide whether to track that file.
 - **System basics** (found in a survey on 2026-11-13; most need sudo, so the user runs or approves them):
   - Backups: deferred (2026-11-14) until there's data worth keeping that isn't in a git repo; everything in `$HOME` is replaceable or in git (push the repos, e.g. `skidbladnir`'s unpushed commits), and the SSH key can be regenerated (GitHub + NAS). When needed, restic with a user timer.
   - **Investigate a reinstall on btrfs + LUKS**: root (`nvme0n1p2`) is plain ext4, so no snapshots (snapper and btrfs-progs were removed 2026-11-14, they couldn't do anything on ext4) and no encryption. Both need a reinstall, so look into doing them together: btrfs subvolumes (`@`, `@home`, …) with snapper + snap-pac (a snapshot before every pacman transaction) and boot entries for snapshots, on LUKS (with fingerprint/TPM unlock options). The package list (`~/.config/pkglist/`) and the dotfiles make a reinstall cheap; push all git repos first.
@@ -23,7 +24,7 @@ The user's goals for this setup, in no particular order. Notes are starting poin
     - **Shorter vault timeout**: the app is `onRestart` (unlocked all session, even while the screen is locked); "On system lock" or ~1 h, re-unlock is just the finger. Check that "On system lock" notices hyprlock (`loginctl lock-session`); if not, use a time.
     - **KDF to Argon2id** (web vault → Settings → Security → Keys; default parameters): now PBKDF2 600,000 iterations; harder to crack if the encrypted vault ever leaks. Other sessions may need to log in again.
   - **Explore a Bitwarden CLI picker** (later, not decided): `rbw` + `rofi-rbw` (extra repo) as a fuzzel picker (e.g. `SUPER + CTRL + K`): copy (`wl-copy`, auto-clear) or type (`wtype`) a username, password or TOTP without opening the app; also lets scripts read secrets. It can't handle the desktop app's SSH approvals, and it unlocks separately (master password via pinentry, no fingerprint), so weigh one more unlock per reboot/lock. The official `bw` is slower (Node) and needs session tokens.
-  - **Brave secrets into the keyring** (postponed: maybe switching browser, see LibreWolf): Brave doesn't use gnome-keyring; `--password-store=gnome-libsecret` in `~/.config/brave-flags.conf` would change that (saved passwords/cookies may need re-entering).
+  - **Brave secrets into the keyring** (postponed: trying Zen instead, see Apps): Brave doesn't use gnome-keyring; `--password-store=gnome-libsecret` in `~/.config/brave-flags.conf` would change that (saved passwords/cookies may need re-entering). Moot if Zen replaces Brave (Firefox-based browsers keep their own password store; Bitwarden handles passwords anyway).
 - **Waybar**:
   - Hide the workspaces pill while only one workspace is in use.
   - A way to see percentages (volume, brightness, battery, …): today they're icons with the values in tooltips only. Maybe swayosd (installed) for the keys, or text in the pills.
@@ -38,11 +39,11 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - Disable tabs: no tab settings in `kitty.conf` yet; unmap the tab keys (`new_tab` etc.) and/or `tab_bar_style hidden`.
   - Investigate faster kitty start-up (e.g. measure kitty vs. `zsh -i` start time; consider kitty's single-instance mode).
 - **Apps and fonts**:
-  - **Consider switching from Brave to LibreWolf** (privacy-focused Firefox fork, AUR `librewolf-bin`): bookmarks/password import, extensions (Surfingkeys exists for Firefox), Waybar `window-rewrite` icon and window rules for its class, `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal.
+  - **Try Zen Browser instead of Brave** (chosen over LibreWolf, 2026-11-24; Firefox-based, AUR `zen-browser-bin`, installed): bookmarks/password import, extensions (Bitwarden with "Unlock with biometrics" through the desktop app like in Brave, which needs the app's browser integration to cover Zen; Surfingkeys exists for Firefox), Waybar `window-rewrite` icon and window rules for its class (check with `hyprctl -j clients`), `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal. If it sticks, uninstall Brave and drop the Brave items here.
   - Fix the LazyVim warnings and errors (`:checkhealth`, `:Lazy`).
   - Add the TTS plugin from GitHub (which one is still to be named).
   - OpenRA: the official-repo `openra` package is already installed; remove the Flatpak (`flatpak uninstall net.openra.OpenRA`; after that the Flatpak remotes may be unused).
-  - Surfingkeys dark mode (browser extension theme in Brave).
+  - Surfingkeys dark mode (browser extension theme; in Zen if it replaces Brave).
   - CJK fonts (`noto-fonts-cjk`): Chinese/Japanese/Korean text shows as boxes.
   - Qt apps don't follow the theme (qt6ct only); maybe `qt5ct`/`kvantum`.
 - **Mouse latency**: partly done (flat accel for the Hitscan; tearing rejected, see Hyprland in CLAUDE.md). What's left is to measure whether it's still noticeable (`evhz` is installed for the polling rate).
