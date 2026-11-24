@@ -39,11 +39,10 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - Disable tabs: no tab settings in `kitty.conf` yet; unmap the tab keys (`new_tab` etc.) and/or `tab_bar_style hidden`.
   - Investigate faster kitty start-up (e.g. measure kitty vs. `zsh -i` start time; consider kitty's single-instance mode).
 - **Apps and fonts**:
-  - **Try Zen Browser instead of Brave** (chosen over LibreWolf, 2026-11-24; Firefox-based, AUR `zen-browser-bin`, installed): bookmarks/password import, extensions (Bitwarden with "Unlock with biometrics" through the desktop app like in Brave, which needs the app's browser integration to cover Zen; Surfingkeys exists for Firefox), Waybar `window-rewrite` icon and window rules for its class (check with `hyprctl -j clients`), `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal. If it sticks, uninstall Brave and drop the Brave items here.
+  - **Try Zen Browser instead of Brave** (chosen over LibreWolf, 2026-11-24; Firefox-based, AUR `zen-browser-bin`, installed): bookmarks sync through **Floccus** (as in Brave now), so no import; keyboard navigation with the **Link Hints** extension instead of Surfingkeys; Bitwarden extension with "Unlock with biometrics" through the desktop app like in Brave (the app's browser integration has to cover Zen; check this first); Waybar `window-rewrite` icon and window rules for its class (check with `hyprctl -j clients`), `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal. If it sticks, uninstall Brave and drop the Brave items here.
   - Fix the LazyVim warnings and errors (`:checkhealth`, `:Lazy`).
   - Add the TTS plugin from GitHub (which one is still to be named).
   - OpenRA: the official-repo `openra` package is already installed; remove the Flatpak (`flatpak uninstall net.openra.OpenRA`; after that the Flatpak remotes may be unused).
-  - Surfingkeys dark mode (browser extension theme; in Zen if it replaces Brave).
   - CJK fonts (`noto-fonts-cjk`): Chinese/Japanese/Korean text shows as boxes.
   - Qt apps don't follow the theme (qt6ct only); maybe `qt5ct`/`kvantum`.
 - **Mouse latency**: partly done (flat accel for the Hitscan; tearing rejected, see Hyprland in CLAUDE.md). What's left is to measure whether it's still noticeable (`evhz` is installed for the polling rate).
