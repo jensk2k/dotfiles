@@ -41,7 +41,6 @@ The user's goals for this setup, in no particular order. Notes are starting poin
 - **Apps and fonts**:
   - **Try Zen Browser instead of Brave** (chosen over LibreWolf, 2026-11-24; Firefox-based, AUR `zen-browser-bin`, installed): bookmarks sync through **Floccus** (as in Brave now), so no import; keyboard navigation with the **Link Hints** extension instead of Surfingkeys; Bitwarden extension with "Unlock with biometrics" through the desktop app like in Brave (the app's browser integration has to cover Zen; check this first); Waybar `window-rewrite` icon and window rules for its class (check with `hyprctl -j clients`), `$BROWSER`/default browser (`xdg-settings`), the theme's light/dark via the portal. If it sticks, uninstall Brave and drop the Brave items here.
   - Fix the LazyVim warnings and errors (`:checkhealth`, `:Lazy`).
-  - Add the TTS plugin from GitHub (which one is still to be named).
   - OpenRA: the official-repo `openra` package is already installed; remove the Flatpak (`flatpak uninstall net.openra.OpenRA`; after that the Flatpak remotes may be unused).
   - CJK fonts (`noto-fonts-cjk`): Chinese/Japanese/Korean text shows as boxes.
   - Qt apps don't follow the theme (qt6ct only); maybe `qt5ct`/`kvantum`.
