@@ -31,7 +31,6 @@ The user's goals for this setup, in no particular order. Notes are starting poin
   - Bluetooth as a tray icon, or Wi-Fi as a Waybar icon/button (Wi-Fi is the nm-applet tray icon today; Bluetooth is in the toggles pill).
   - Black-and-white (monochrome/symbolic) tray icons for Signal and Bitwarden.
   - **Pending reboot in the update pill**: `custom/updates` should also say when a reboot is needed after an update (e.g. the running kernel `uname -r` no longer has its modules in `/usr/lib/modules`, or linux/systemd/glibc were upgraded since boot).
-  - **Claude Code status pill**: show Claude Code's state (e.g. working / waiting for input / idle, maybe per session) in Waybar; could be fed by Claude Code hooks writing a state file and signalling Waybar.
 - **Launcher / menus**:
   - Power menu (`scripts/power-menu.sh`): hotkeys per entry (e.g. `l` = lock) instead of typing to filter.
   - Larger, wider launcher: fuzzel is `width=40`, `lines=12` now.

@@ -288,6 +288,24 @@ menu separator {
     font-weight: normal;
 }
 
+/* Claude Code sessions (hidden without one): the glyphs carry their own
+   colours; a session that needs you tints the whole pill */
+#custom-claude {
+    margin: 2px 0px;
+    padding: 0px 8px;
+    background-color: @bg2;
+    color: @fg;
+    border-radius: 4px;
+}
+
+#custom-claude.waiting {
+    background-color: alpha(@warn, 0.3);
+}
+
+#custom-claude:hover {
+    background: alpha(@fg, 0.08);
+}
+
 /* Failed units: red pill (hidden while nothing has failed) */
 #systemd-failed-units {
     margin: 2px 0px;

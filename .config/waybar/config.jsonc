@@ -19,6 +19,7 @@
     "modules-right": [
         "privacy",
         "hyprland/submap",
+        "custom/claude",
         "systemd-failed-units",
         "custom/updates",
         "group/hardware",
@@ -108,6 +109,17 @@
         "format": "{nr_failed} 󰀦",
         "hide-on-ok": true,
         "on-click": "~/.config/hypr/scripts/toggle-popup.sh popup.failed sh -c 'systemctl --failed; echo; systemctl --user --failed; echo; echo Press Enter to close; read -r _'"
+    },
+    // Claude Code sessions: one glyph each (working / needs you / done), from
+    // state files written by hooks in ~/.claude/settings.json (claude-hook.sh,
+    // which refreshes this with signal 11). Hidden with no session. Click:
+    // focus the terminal of the session that most needs you
+    "custom/claude": {
+        "exec": "~/.config/waybar/scripts/claude.sh",
+        "return-type": "json",
+        "interval": 30,
+        "signal": 11,
+        "on-click": "~/.config/waybar/scripts/claude-focus.sh"
     },
     // Pending updates (repos + AUR), checked hourly, hidden at zero. Click (or
     // SUPER + CTRL + U): run the update in a bar popup; it refreshes this with signal 10
